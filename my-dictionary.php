@@ -7,4 +7,6 @@
 * Author: eduvallve
 * Author URI: https://eduvallve.com
 **/
+
+require_once 'functions.php';
 ?>
