@@ -1,2 +1,2 @@
-# my-wp-languages
+# my-dictionary
  Smooth WordPress plugin for multilingual sites
