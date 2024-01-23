@@ -1,37 +1,40 @@
 <?php
-function createMyDictionaryTable() {
-    $query_createMyDictionary_table = "CREATE TABLE IF NOT EXISTS ".$GLOBALS['wpdb']->prefix."my_dictionary (
-        id int NOT NULL AUTO_INCREMENT,
-        post_id int NOT NULL,
-        en_US longtext NULL,
-        PRIMARY KEY (id)
-    ) ENGINE=MyISAM DEFAULT CHARSET=latin1;";
-    $createMyDictionary_table = $GLOBALS['wpdb']->query($GLOBALS['wpdb']-> prepare($query_createMyDictionary_table));
-}
 
-function createMyDictionaryMetaTable() {
-    $query_createMyDictionaryMeta_table = "CREATE TABLE IF NOT EXISTS ".$GLOBALS['wpdb']->prefix."my_dictionary_meta (
-        meta_id int NOT NULL AUTO_INCREMENT,
-        meta_key varchar(255) NULL,
-        meta_value longtext NULL,
-        PRIMARY KEY (meta_id)
-    ) ENGINE=MyISAM DEFAULT CHARSET=latin1;";
-    $createMyDictionaryMeta_table = $GLOBALS['wpdb']->query($GLOBALS['wpdb']-> prepare($query_createMyDictionaryMeta_table));
-}
-
-
-function createDB_pluginTables() {
-    $getExistingTables = "SELECT * FROM wp_my_dictionary, wp_my_dictionary_meta";
-    $existingTables = $GLOBALS['wpdb']->get_results($getExistingTables);
-    if (count($existingTables) === 0) {
-        createMyDictionaryTable();
-        createMyDictionaryMetaTable();
-    }
-}
+require_once 'functions/database.php';
+require_once 'functions/page-inspect.php';
 
 function my_dictionary_plugin() {
     createDB_pluginTables();
+    fillDictionaryTable();
 }
 
-add_action('init', 'my_dictionary_plugin');
+add_action('wp_enqueue_scripts', 'my_dictionary_plugin');
+
+
+/**
+ * My Dictionary - Admin page
+ */
+
+include 'admin/admin.php';
+
+add_action( 'admin_menu', 'my_admin_menu' );
+
+function my_admin_menu() {
+	add_menu_page(
+        'My Dictionary Dashboard',
+        'My Dictionary',
+        'manage_options',
+        'my-dictionary',
+        'mydictionary_admin_page',
+        'dashicons-translation',
+        81
+    );
+}
+
+function my_enqueue() {
+    wp_enqueue_script('my_custom_script', plugin_dir_url(__FILE__) . 'admin/js/admin.js');
+}
+
+add_action('admin_enqueue_scripts', 'my_enqueue');
+
 ?>
