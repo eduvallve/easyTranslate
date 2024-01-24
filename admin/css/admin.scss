@@ -1,0 +1,34 @@
+$language: 'md-language';
+
+.#{$language} {
+    &__table {
+        margin-bottom: 40px;
+
+        thead th,
+        td {
+            text-align: center;
+
+            @media screen and (max-width: 782px) {
+                display: table-cell;
+            }
+        }
+
+        thead th {
+            padding: 5px;
+            border-bottom: 1px solid grey;
+        }
+
+        td {
+            padding: 15px 5px;
+        }
+    }
+
+    &__action-remove {
+        color: orangered;
+        cursor: pointer;
+    }
+
+    &__item--default .#{$language}__action-remove {
+        display: none;
+    }
+}

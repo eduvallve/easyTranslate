@@ -7,9 +7,10 @@
 const cfg = {
     selectors: {
         generalContainer: '#md-general',
-        addLanguage: '.md-new-language',
+        newLanguage: '.md-new-language',
         addLanguageSelect: '.md-new-language select',
-        addLanguageBtn: '.md-add-language'
+        newLanguageBtn: '.md-add-language',
+        languagesTableBody: 'table.md-language__table tbody'
     },
     classes: {
         newLanguage: 'md-new-language',
@@ -21,6 +22,20 @@ const cfg = {
 class BasicComponent {
     constructor(el) {
         this.el = el;
+    }
+
+    file_get_contents(filename) {
+        fetch(filename).then((resp) => resp.text()).then(data => {
+            // Initialize the document parser
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(data, 'text/html');
+
+            // Get the <body> element content
+            const row = doc.querySelector('tbody').innerHTML;
+
+            // Replace my empty element with the retrieved content
+            this.languagesTableBody.innerHTML += row;
+        });
     }
 }
 
@@ -37,8 +52,10 @@ class GeneralAdmin extends BasicComponent {
     }
 
     setRefs() {
-        this.newLanguageBtn = this.el.getElementsByClassName(cfg.classes.newLanguageBtn)[0];
-        this.newLanguageSelect = this.el.getElementsByClassName(cfg.classes.newLanguage)[0].getElementsByTagName('select')[0];
+        this.newLanguageBtn = this.el.querySelector(cfg.selectors.newLanguageBtn);
+        this.newLanguageSelect = this.el.querySelector(`${cfg.selectors.newLanguage} select`);
+        this.pluginUrl = this.el.dataset.pluginUrl;
+        this.languagesTableBody = this.el.querySelector(cfg.selectors.languagesTableBody);
     }
 
     addEventListeners() {
@@ -46,7 +63,10 @@ class GeneralAdmin extends BasicComponent {
     }
 
     addLanguageBtn() {
-        console.log(this.newLanguageSelect.value);
+        if (this.newLanguageSelect.value.trim() !== '') {
+            const filename = `${this.pluginUrl}general.template.language.row.php?md_code=${this.newLanguageSelect.value}`;
+            this.file_get_contents(filename);
+        }
     }
 }
 

@@ -26,13 +26,17 @@ function cleanHtmlTags($post_content) {
 }
 
 function getSavedPostTexts($post_id) {
-    $getSavedPostTexts = "SELECT ".get_locale()." FROM wp_my_dictionary WHERE post_id = {$post_id} ORDER BY id ASC";
+    $table = $GLOBALS['wp_my_dictionary'];
+    $defaultLanguage = str_replace("-", "_",getDefaultLanguage());
+    $getSavedPostTexts = "SELECT {$defaultLanguage} FROM {$table} WHERE post_id = {$post_id} ORDER BY id ASC";
     $savedPostTexts = $GLOBALS['wpdb']->get_results($getSavedPostTexts);
-    return array_column($savedPostTexts, get_locale());
+    return array_column($savedPostTexts, $defaultLanguage);
 }
 
 function savePostTexts($post_id, $post_diffTexts) {
-    $query_savePostTexts = "INSERT INTO {$GLOBALS['wpdb']->prefix}my_dictionary (post_id, ".get_locale().") VALUES ";
+    $table = $GLOBALS['wp_my_dictionary'];
+    $defaultLanguage = str_replace("-", "_",getDefaultLanguage());
+    $query_savePostTexts = "INSERT INTO {$table} (post_id, {$defaultLanguage}) VALUES ";
     $acum = 0;
     foreach ($post_diffTexts as $post_text) {
         $query_savePostTexts .= "({$post_id},\"{$post_text}\")";

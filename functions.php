@@ -20,8 +20,9 @@ include 'admin/admin.php';
 add_action( 'admin_menu', 'my_admin_menu' );
 
 function my_admin_menu() {
+    createDB_pluginTables();
 	add_menu_page(
-        'My Dictionary Dashboard',
+        'My Dictionary',
         'My Dictionary',
         'manage_options',
         'my-dictionary',
@@ -33,6 +34,7 @@ function my_admin_menu() {
 
 function my_enqueue() {
     wp_enqueue_script('my_custom_script', plugin_dir_url(__FILE__) . 'admin/js/admin.js');
+    wp_enqueue_style('my_custom_style', plugin_dir_url(__FILE__) . 'admin/css/admin.css');
 }
 
 add_action('admin_enqueue_scripts', 'my_enqueue');

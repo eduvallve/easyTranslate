@@ -2,6 +2,7 @@
 
 $wp_my_dictionary = $GLOBALS['wpdb']->prefix."my_dictionary";
 $wp_my_dictionary_meta = $GLOBALS['wpdb']->prefix."my_dictionary_meta";
+$get_locale = str_replace("_", "-",get_locale());
 
 function createMyDictionaryTable() {
     $table = $GLOBALS['wp_my_dictionary'];
@@ -39,8 +40,19 @@ function createDB_pluginTables() {
 
 function saveDefaultLanguage() {
     $tableMeta = $GLOBALS['wp_my_dictionary_meta'];
-    $query_saveDefaultLanguage = "INSERT INTO {$tableMeta} (meta_key, meta_value) VALUES ('defaultLanguage', '".get_locale()."')";
+    $query_saveDefaultLanguage = "INSERT INTO {$tableMeta} (meta_key, meta_value) VALUES ('defaultLanguage', '".$GLOBALS['get_locale']."')";
     $saveDefaultLanguage = $GLOBALS['wpdb']->query($GLOBALS['wpdb']-> prepare($query_saveDefaultLanguage));
+}
+
+function getDefaultLanguage() {
+    $query_getDefaultLanguage = "SELECT meta_value FROM ".$GLOBALS['wp_my_dictionary_meta']." WHERE meta_key = 'defaultLanguage'";
+    $getDefaultLanguage = $GLOBALS['wpdb']->get_results($query_getDefaultLanguage);
+    if (count($getDefaultLanguage) === 0) {
+        saveDefaultLanguage();
+        return $GLOBALS['get_locale'];
+    } else {
+        return implode(array_column($getDefaultLanguage, 'meta_value'));
+    }
 }
 
 ?>

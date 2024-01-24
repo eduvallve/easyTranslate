@@ -1,0 +1,29 @@
+.md-language__table {
+  margin-bottom: 40px;
+}
+.md-language__table thead th,
+.md-language__table td {
+  text-align: center;
+}
+@media screen and (max-width: 782px) {
+  .md-language__table thead th,
+.md-language__table td {
+    display: table-cell;
+  }
+}
+.md-language__table thead th {
+  padding: 5px;
+  border-bottom: 1px solid grey;
+}
+.md-language__table td {
+  padding: 15px 5px;
+}
+.md-language__action-remove {
+  color: orangered;
+  cursor: pointer;
+}
+.md-language__item--default .md-language__action-remove {
+  display: none;
+}
+
+/*# sourceMappingURL=admin.css.map */
