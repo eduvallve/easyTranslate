@@ -11,4 +11,8 @@ function getAllLanguages() {
     return json_decode($json,true);
 }
 
+function successMessage($msg) {
+    echo "<div class='md-msg__success'><span class='dashicons-before dashicons-saved'> $msg</span></div>";
+}
+
 ?>

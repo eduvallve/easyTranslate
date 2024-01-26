@@ -1,4 +1,12 @@
+:root {
+    --md-msg-color-success-bg: #c6e38c;
+    --md-msg-color-success-border: yellowgreen;
+    --md-msg-color-success-text: darkgreen;
+    --md-msg-color-remove-text: orangered;
+}
+
 $language: 'md-language';
+$post-type: 'md-post-type';
 
 .#{$language} {
     &__table {
@@ -14,7 +22,9 @@ $language: 'md-language';
         }
 
         thead th {
-            padding: 5px;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            padding-right: 0;
             border-bottom: 1px solid grey;
         }
 
@@ -23,12 +33,83 @@ $language: 'md-language';
         }
     }
 
-    &__action-remove {
-        color: orangered;
+    &__name,
+    &__code {
         cursor: pointer;
+    }
+
+    @media screen and (min-width: 480px) {
+        &__name {
+            min-width: max-content;
+            display: block;
+        }
+    }
+
+    .form-table &__default-title {
+        max-width: max-content;
+        display: block;
+        padding-left: 1em;
+        padding-right: 1em;
+    }
+
+    &__action-remove {
+        color: var(--md-msg-color-remove-text);
+        cursor: pointer;
+
+        &.dashicons-before:before {
+            font-size: 1.2em;
+            vertical-align: middle;
+            margin-right: 3px;
+        }
     }
 
     &__item--default .#{$language}__action-remove {
         display: none;
+    }
+}
+
+#md-general .form-table > tbody > tr > td {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.md-new-language,
+td.#{$post-type}__area {
+    margin-bottom: 20px;
+    padding-bottom: 40px;
+    border-bottom: 1px solid lightgrey;
+}
+
+td.#{$post-type}__area {
+    display: flex;
+    padding-top: 5px;
+    flex-wrap: wrap;
+
+    label:first-child {
+        margin-top: 0;
+    }
+}
+
+.#{$post-type} {
+    &__label {
+        vertical-align: baseline;
+        padding: 15px 30px 15px 0;
+    }
+}
+
+.md-msg {
+    &__success {
+        margin: 1em 0;
+        padding: 1em;
+        background-color: var(--md-msg-color-success-bg);
+        border: 1px solid var(--md-msg-color-success-border);
+        border-radius: 3px;
+        color: var(--md-msg-color-success-text);
+        font-weight: 500;
+    }
+
+    &__hide {
+        opacity: 0;
+        transition: opacity .5s;
     }
 }

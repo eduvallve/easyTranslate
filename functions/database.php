@@ -4,6 +4,10 @@ $wp_my_dictionary = $GLOBALS['wpdb']->prefix."my_dictionary";
 $wp_my_dictionary_meta = $GLOBALS['wpdb']->prefix."my_dictionary_meta";
 $get_locale = str_replace("_", "-",get_locale());
 
+/**
+ * Create empty tables
+ */
+
 function createMyDictionaryTable() {
     $table = $GLOBALS['wp_my_dictionary'];
     $query_createMyDictionary_table = "CREATE TABLE IF NOT EXISTS {$table} (
@@ -26,7 +30,6 @@ function createMyDictionaryMetaTable() {
     $createMyDictionaryMeta_table = $GLOBALS['wpdb']->query($GLOBALS['wpdb']-> prepare($query_createMyDictionaryMeta_table));
 }
 
-
 function createDB_pluginTables() {
     $table = $GLOBALS['wp_my_dictionary'];
     $tableMeta = $GLOBALS['wp_my_dictionary_meta'];
@@ -38,11 +41,31 @@ function createDB_pluginTables() {
     }
 }
 
+/**
+ * Fill default values for wp_my_dictionary_meta
+ */
+
 function saveDefaultLanguage() {
     $tableMeta = $GLOBALS['wp_my_dictionary_meta'];
     $query_saveDefaultLanguage = "INSERT INTO {$tableMeta} (meta_key, meta_value) VALUES ('defaultLanguage', '".$GLOBALS['get_locale']."')";
     $saveDefaultLanguage = $GLOBALS['wpdb']->query($GLOBALS['wpdb']-> prepare($query_saveDefaultLanguage));
 }
+
+function saveFirstSupportedLanguage() {
+    $tableMeta = $GLOBALS['wp_my_dictionary_meta'];
+    $query_savefirstSupportedLanguage = "INSERT INTO {$tableMeta} (meta_key, meta_value) VALUES ('supportedLanguages', '".$GLOBALS['get_locale']."')";
+    $savefirstSupportedLanguage = $GLOBALS['wpdb']->query($GLOBALS['wpdb']-> prepare($query_savefirstSupportedLanguage));
+}
+
+function saveDefaultPostType() {
+    $tableMeta = $GLOBALS['wp_my_dictionary_meta'];
+    $query_saveDefaultPostType = "INSERT INTO {$tableMeta} (meta_key, meta_value) VALUES ('supportedPostTypes', 'page,post')";
+    $saveDefaultPostType = $GLOBALS['wpdb']->query($GLOBALS['wpdb']-> prepare($query_saveDefaultPostType));
+}
+
+/**
+ * Get values from fundamental fields in wp_my_dictionary_meta
+ */
 
 function getDefaultLanguage() {
     $query_getDefaultLanguage = "SELECT meta_value FROM ".$GLOBALS['wp_my_dictionary_meta']." WHERE meta_key = 'defaultLanguage'";
@@ -52,6 +75,28 @@ function getDefaultLanguage() {
         return $GLOBALS['get_locale'];
     } else {
         return implode(array_column($getDefaultLanguage, 'meta_value'));
+    }
+}
+
+function getSupportedLanguages() {
+    $query_getSupportedLanguages = "SELECT meta_value FROM ".$GLOBALS['wp_my_dictionary_meta']." WHERE meta_key = 'supportedLanguages'";
+    $getSupportedLanguages = $GLOBALS['wpdb']->get_results($query_getSupportedLanguages);
+    if (count($getSupportedLanguages) === 0) {
+        saveFirstSupportedLanguage();
+        return $GLOBALS['get_locale'];
+    } else {
+        return explode(",",implode(array_column($getSupportedLanguages, 'meta_value')));
+    }
+}
+
+function getSupportedPostTypes() {
+    $query_getSupportedPostTypes = "SELECT meta_value FROM ".$GLOBALS['wp_my_dictionary_meta']." WHERE meta_key = 'supportedPostTypes'";
+    $getSupportedPostTypes = $GLOBALS['wpdb']->get_results($query_getSupportedPostTypes);
+    if (count($getSupportedPostTypes) === 0) {
+        saveDefaultPostType();
+        return ['page','post'];
+    } else {
+        return explode(",",implode(array_column($getSupportedPostTypes, 'meta_value')));
     }
 }
 

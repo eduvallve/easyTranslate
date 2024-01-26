@@ -3,8 +3,6 @@
  * General tab here
  */
 
-require_once "general.functions.php";
-
 function createLanguageSelect($defaultLanguage = false) {
     $listOutput = "";
     foreach( getAllLanguages() as $abbr => $language ) {
@@ -21,9 +19,25 @@ function fillLanguageRow($languageCode, $isDefaultLanguage) {
     include "general.template.language.row.php";
 }
 
+function showAvailablePostTypes() {
+    $query_getAvailablePostTypes = "SELECT DISTINCT(post_type) FROM wp_posts WHERE post_type != 'revision'";
+    $getAvailablePostTypes = $GLOBALS['wpdb']->get_results($query_getAvailablePostTypes);
+    $availablePostTypes = array_column($getAvailablePostTypes, 'post_type');
+    foreach ($availablePostTypes as $availableType) {
+        echo "<label class='md-post-type__label' for='post-type-$availableType'><input type='checkbox' name='postTypes[]' id='post-type-$availableType' value='$availableType'";
+        foreach (getSupportedPostTypes() as $supportedType) {
+            echo $availableType === $supportedType ? 'checked' : '' ;
+        }
+        echo ">$availableType</label>";
+    }
+}
+
+if ( isset($_POST) && count($_POST) > 0 ) {
+    include "general.update.php";
+}
 ?>
 
-<form id="md-general" method="post" action="<?php echo plugin_dir_url( __FILE__ ); ?>general.update.php" data-plugin-url="<?php echo plugin_dir_url( __FILE__ ); ?>">
+<form id="md-general" method="post" data-plugin-url="<?php echo plugin_dir_url( __FILE__ ); ?>">
     <table class="form-table">
         <tbody>
             <tr>
@@ -31,14 +45,19 @@ function fillLanguageRow($languageCode, $isDefaultLanguage) {
                 <td>
                     <table class="md-language__table">
                         <thead>
-                            <th>Default</th>
+                            <th class="md-language__default-title">Default</th>
                             <th>Name</th>
                             <th>Code</th>
                             <th>Action</th>
                         </thead>
                         <tbody>
                             <?php
-                            fillLanguageRow(getDefaultLanguage(),true);
+                            if ( count(getSupportedLanguages()) > 0 ) {
+                                foreach (getSupportedLanguages() as $language) {
+                                    $checked = $language === getDefaultLanguage() ? true : false ;
+                                    fillLanguageRow($language,$checked);
+                                }
+                            }
                             ?>
                         </tbody>
                     </table>
@@ -50,6 +69,12 @@ function fillLanguageRow($languageCode, $isDefaultLanguage) {
                         <button type="button" class="md-add-language button-secondary">Add</button>
                         <p>Select the languages you wish to make your website available in.</p>
                     </div>
+                </td>
+            </tr>
+            <tr>
+                <th>Supported post types</th>
+                <td class="md-post-type__area">
+                    <?php echo showAvailablePostTypes(); ?>
                 </td>
             </tr>
         </tbody>
