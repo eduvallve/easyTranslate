@@ -23,9 +23,10 @@ function showAvailablePostTypes() {
     $query_getAvailablePostTypes = "SELECT DISTINCT(post_type) FROM wp_posts WHERE post_type != 'revision'";
     $getAvailablePostTypes = $GLOBALS['wpdb']->get_results($query_getAvailablePostTypes);
     $availablePostTypes = array_column($getAvailablePostTypes, 'post_type');
+    $supportedPostTypes = getSupportedPostTypes();
     foreach ($availablePostTypes as $availableType) {
         echo "<label class='md-post-type__label' for='post-type-$availableType'><input type='checkbox' name='postTypes[]' id='post-type-$availableType' value='$availableType'";
-        foreach (getSupportedPostTypes() as $supportedType) {
+        foreach ($supportedPostTypes as $supportedType) {
             echo $availableType === $supportedType ? 'checked' : '' ;
         }
         echo ">$availableType</label>";
@@ -52,9 +53,10 @@ if ( isset($_POST) && count($_POST) > 0 ) {
                         </thead>
                         <tbody>
                             <?php
+                            $defaultLanguage = getDefaultLanguage();
                             if ( count(getSupportedLanguages()) > 0 ) {
                                 foreach (getSupportedLanguages() as $language) {
-                                    $checked = $language === getDefaultLanguage() ? true : false ;
+                                    $checked = $language === $defaultLanguage ? true : false ;
                                     fillLanguageRow($language,$checked);
                                 }
                             }

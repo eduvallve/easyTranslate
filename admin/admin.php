@@ -29,7 +29,8 @@ function mydictionary_admin_page(){
         echo 'Settings'; //Put your HTML here
         break;
       case 'translate':
-        echo 'Translate';
+        // echo 'Translate';
+        require_once 'translate.php';
         break;
       default:
         // echo 'General';

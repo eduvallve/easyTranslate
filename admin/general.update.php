@@ -19,6 +19,8 @@ function updateSupportedLanguages($supportedLanguages) {
     $supportedLanguages = implode(",",$supportedLanguages);
     $query_updateSupportedLanguages = "UPDATE $tableMeta SET meta_key='supportedLanguages', meta_value='$supportedLanguages' WHERE meta_key='supportedLanguages'";
     $updateSupportedLanguages = $GLOBALS['wpdb']->query($GLOBALS['wpdb']-> prepare($query_updateSupportedLanguages));
+    // Add column for each new language in wp_my_dictionary
+    addNewDictionaryColumns();
 }
 
 function updateSupportedPostTypes($supportedPostTypes) {
@@ -29,24 +31,29 @@ function updateSupportedPostTypes($supportedPostTypes) {
 }
 
 /**
- * Show success message after updating
+ * Behaviour
  */
 
-function updateSuccess() {
-    successMessage("Changes saved successfully");
-}
-
 if ( exists($_POST['defaultLanguage']) ) {
+    $successMsg = true;
     if ( isset($_POST['defaultLanguage']) ) {
         updateDefaultLanguage($_POST['defaultLanguage']);
     }
     if ( isset($_POST['languages']) ) {
-    updateSupportedLanguages($_POST['languages']);
+        updateSupportedLanguages($_POST['languages']);
     }
     if ( isset($_POST['postTypes']) ) {
         updateSupportedPostTypes($_POST['postTypes']);
+    } else {
+        warningMessage("<span class='dashicons-before dashicons-info-outline'> At least one Post Type must be selected</span>");
+        $successMsg = false;
     }
-    updateSuccess();
+
+    if ($successMsg) {
+        successMessage("<span class='dashicons-before dashicons-saved'> All changes saved successfully</span>");
+    } else {
+        successMessage("<span class='dashicons-before dashicons-saved'> <em>Language changes</em> have been saved successfully</span>");
+    }
 }
 
 ?>

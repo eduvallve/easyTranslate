@@ -11,8 +11,20 @@ function getAllLanguages() {
     return json_decode($json,true);
 }
 
+function getTranslationLanguages() {
+    return array_values(array_diff(getSupportedLanguages(),[getDefaultLanguage()]));
+}
+
 function successMessage($msg) {
-    echo "<div class='md-msg__success'><span class='dashicons-before dashicons-saved'> $msg</span></div>";
+    echo "<div class='md-msg md-msg__success'>$msg</div>";
+}
+
+function warningMessage($msg) {
+    echo "<div class='md-msg md-msg__warning'>$msg</div>";
+}
+
+function infoMessage($msg) {
+    echo "<div class='md-msg md-msg__info'>$msg</div>";
 }
 
 ?>

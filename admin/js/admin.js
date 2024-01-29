@@ -156,7 +156,10 @@ class SuccessMsg extends BasicComponent {
  */
 
 window.onload = function() {
-    new GeneralAdmin(document.querySelector(cfg.selectors.general.generalContainer));
+    const generalTab = document.querySelector(cfg.selectors.general.generalContainer);
+    if (generalTab) {
+        new GeneralAdmin(generalTab);
+    }
 
     document.querySelectorAll(cfg.selectors.form.msg.success).forEach(message => {
         new SuccessMsg(message);
