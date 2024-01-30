@@ -48,21 +48,95 @@ function showGlobalLanguagesProgress() {
  * Start showPostList area
  */
 
-function showPostListByType($postType) {
-    $query_getPostListByType = "SELECT DISTINCT(wp_posts.post_title) AS title, wp_posts.guid AS guid, post_date FROM wp_posts WHERE wp_posts.post_type = '$postType' ORDER BY wp_posts.post_date DESC";
-    $getPostListByType = $GLOBALS['wpdb']->get_results($query_getPostListByType);
-    $output = "";
-    foreach ($getPostListByType as $postItem) {
-        $output .= "<span class='md-translate__single-progress--item'>$postItem->title <a href='$postItem->guid' target='_blank' class='dashicons-before dashicons-external'></a></span>";
-    }
-    return $output;
+function headingCells() {
+    echo '<tr>
+        <th scope="col">Title</th>
+        <th scope="col">Progress</th>
+    </tr>';
 }
 
-function showPostList() {
+function createPostListByType($postType, $allPostListData) {
+    $actualUrl = (empty($_SERVER['HTTPS']) ? 'http' : 'https') . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+    $isEmpty = true;
+    foreach ($allPostListData as $post) {
+        if ($post->post_type === $postType) {
+            $isEmpty = false;
+            ?>
+                <tr id="post-<?php echo $post->post_id; ?>" class="md-translate__item" data-colname="Title">
+                    <td class="md-translate__item-title">
+                        <strong>
+                            <a class="row-title" href="<?php echo $actualUrl."&post_id=".$post->post_id; ?>" aria-label="“<?php echo $post->post_title; ?>” (Translate)"><?php echo $post->post_title; ?></a>
+                        </strong>
+                        <div class="row-actions">
+                            <span class="Translate">
+                                <a href="<?php echo $actualUrl."&post_id=".$post->post_id; ?>" aria-label="Translate “<?php echo $post->post_title; ?>”">Translate</a> | </span>
+                            <span class="view">
+                                <a href="<?php echo $post->post_guid; ?>" target="_blank" rel="bookmark" aria-label="View “<?php echo $post->post_title; ?>”">View</a></span>
+                        </div>
+                    </td>
+                    <td class="md-translate__item-progress">
+                        <?php
+                            $defaultLanguage = str_replace("-", "_", getDefaultLanguage());
+                            $supportedLanguages = getTranslationLanguages();
+                            $total = intval($post->$defaultLanguage) * count($supportedLanguages);
+                            $partial = 0;
+                            foreach ($supportedLanguages as $language) {
+                                $language = str_replace("-", "_", $language);
+                                $partial = $partial + intval($post->$language);
+                            }
+                            // echo $partial.' / '.$total;
+                            echo createProgressBar($partial, $total);
+                        ?>
+                    </td>
+                </tr>
+            <?php
+        }
+    }
+
+    if ( $isEmpty ) {
+        ?> <tr><td colspan="2">No texts found under this post type</td></tr> <?
+    }
+}
+
+function getAllPostListData() {
+    $table = $GLOBALS['wp_my_dictionary'];
+    $defaultLanguage = str_replace("-", "_", getDefaultLanguage());
+    $translationLanguages = getTranslationLanguages();
+    $addSelectLanguage = "";
+    $addWhereLanguage = "";
+    foreach ($translationLanguages as $translationLanguage) {
+        $lang = str_replace("-", "_", $translationLanguage);
+        $addSelectLanguage .= ", count($lang) AS $lang ";
+        $addWhereLanguage .= " OR $lang IS NOT NULL ";
+    }
+    $query_getAllPostListData = "SELECT $table.post_id, wp_posts.post_title AS post_title, wp_posts.guid AS post_guid, post_type AS post_type, count($defaultLanguage) AS $defaultLanguage $addSelectLanguage FROM $table, wp_posts WHERE ($defaultLanguage IS NOT NULL $addWhereLanguage) AND $table.post_id = wp_posts.ID GROUP BY $table.post_id ORDER BY post_type ASC, post_id DESC";
+    return $GLOBALS['wpdb']->get_results($query_getAllPostListData);
+}
+
+function createPostListTable() {
+    $allPostListData = getAllPostListData();
     $supportedPostTypes = getSupportedPostTypes();
     foreach ($supportedPostTypes as $postType) {
-        $postTypeName = ucfirst($postType);
-        echo "<tr><td>$postTypeName</td><td colspan='2'>".showPostListByType($postType)."</td><td></td></tr>";
+        ?>
+            <div class="col-container md-container-<?php echo $postType; ?>">
+                <div class="col-left"><?php echo ucfirst($postType); ?></div>
+                <div class="col-right">
+                    <div class="col-wrap">
+                        <table class="striped widefat">
+                            <thead>
+                                <?php headingCells(); ?>
+                            </thead>
+                            <tbody>
+                                <?php createPostListByType($postType, $allPostListData); ?>
+                            </tbody>
+                            <tfoot>
+                                <?php headingCells(); ?>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        <?php
     }
 }
 ?>
@@ -86,7 +160,7 @@ function showPostList() {
             </tr>
         </tbody>
     </table>
-    <table class="form-table md-translate__single-progress">
+    <!-- <table class="form-table md-translate__single-progress">
         <tbody>
             <tr>
                 <th>Post type</th>
@@ -94,9 +168,15 @@ function showPostList() {
                 <th>Individual progress</th>
                 <th>Scan</th>
             </tr>
-            <?php if ( areTranslationLanguages() ) {
-                    showPostList();
-                } ?>
+            <?php
+            // if ( areTranslationLanguages() ) {
+            //         showPostList();
+            //     }
+                 ?>
         </tbody>
-    </table>
+    </table> -->
+
+    <?php if ( areTranslationLanguages() ) {
+        createPostListTable();
+     } ?>
 </div>
