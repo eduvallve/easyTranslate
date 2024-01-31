@@ -30,7 +30,7 @@ if (!function_exists('isAjaxCall')) {
 
 if ( isAjaxCall() ) {
     $languageCode = $_GET['md_code'];
-    include "admin.functions.php";
+    require_once "../../admin.functions.php";
 }
 
 $languageName = getAllLanguages()[$languageCode];

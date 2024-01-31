@@ -8,5 +8,16 @@
 * Author URI: https://eduvallve.com
 **/
 
-require_once 'functions.php';
+/**
+ * Functions (Front-office)
+ */
+
+require_once 'functions/functions.php';
+
+/**
+ * Admin page (Back-office)
+ */
+
+require_once 'admin/admin.php';
+
 ?>

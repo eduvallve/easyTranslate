@@ -100,6 +100,10 @@ function getSupportedPostTypes() {
     }
 }
 
+/**
+ * Alter main table when a new language is set
+ */
+
 function checkIfLanguageColumnexists($lang, $table) {
     $query_getLanguageColumn = "SELECT $lang FROM $table";
     return $GLOBALS['wpdb']->get_results($query_getLanguageColumn);

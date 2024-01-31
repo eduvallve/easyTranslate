@@ -1,44 +1,31 @@
 <?php
-require_once "admin.functions.php";
 
-function mydictionary_admin_page(){
-    // check user capabilities
-  if ( ! current_user_can( 'manage_options' ) ) {
-    return;
-  }
+/**
+ * Admin page (back-office)
+ */
 
-  //Get the active tab from the $_GET param
-  $default_tab = null;
-  $tab = isset($_GET['tab']) ? $_GET['tab'] : $default_tab;
+require_once "admin.dashboard.php";
 
-  ?>
-  <!-- Our admin page content should all be inside .wrap -->
-  <div class="wrap">
-    <!-- Print the page title -->
-    <h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
-    <!-- Here are our tabs -->
-    <nav class="nav-tab-wrapper">
-      <a href="?page=my-dictionary" class="nav-tab <?php if($tab===null):?>nav-tab-active<?php endif; ?>">General</a>
-      <a href="?page=my-dictionary&tab=translate" class="nav-tab <?php if($tab==='translate'):?>nav-tab-active<?php endif; ?>">Translate</a>
-      <a href="?page=my-dictionary&tab=settings" class="nav-tab <?php if($tab==='settings'):?>nav-tab-active<?php endif; ?>">Settings</a>
-    </nav>
+add_action( 'admin_menu', 'my_admin_menu' );
 
-    <div class="tab-content">
-    <?php switch($tab) :
-      case 'settings':
-        echo 'Settings'; //Put your HTML here
-        break;
-      case 'translate':
-        // echo 'Translate';
-        require_once 'translate.php';
-        break;
-      default:
-        // echo 'General';
-        require_once 'general.php';
-        break;
-    endswitch; ?>
-    </div>
-  </div>
-  <?php
+function my_admin_menu() {
+  createDB_pluginTables();
+  add_menu_page(
+        'My Dictionary',
+        'My Dictionary',
+        'manage_options',
+        'my-dictionary',
+        'mydictionary_admin_page',
+        'dashicons-translation',
+        81
+    );
 }
+
+function my_enqueue() {
+    wp_enqueue_script('my_custom_script', plugin_dir_url(__FILE__) . 'js/admin.js');
+    wp_enqueue_style('my_custom_style', plugin_dir_url(__FILE__) . 'css/admin.css');
+}
+
+add_action('admin_enqueue_scripts', 'my_enqueue');
+
 ?>
