@@ -4,6 +4,7 @@
  * Functions (Front-office)
  */
 
+require_once 'functions.global.php';
 require_once 'functions.database.php';
 require_once 'functions.page-inspect.php';
 

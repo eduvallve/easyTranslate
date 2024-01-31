@@ -15,22 +15,36 @@ function welcomeMessage() {
  * Start showGlobalLanguagesProgress area
  */
 
-function getLogsByLanguage($language) {
-    $table = $GLOBALS['wp_my_dictionary'];
-    $language = str_replace("-", "_", $language);
-    $query_getTranslations = "SELECT COUNT($language) AS $language FROM $table";
-    $getTranslations = $GLOBALS['wpdb']->get_results($query_getTranslations);
-    return intval(implode(array_column($getTranslations, $language)));
+function getLogsByLanguage() {
+    if ( isset($GLOBALS['cfg']['logsByLanguage']) ) {
+        return $GLOBALS['cfg']['logsByLanguage'];
+    } else {
+        showFunctionFired('getLogsByLanguage()');
+        $table = $GLOBALS['cfg']['table'];
+        $supportedLanguages = getSupportedLanguages();
+        $languageList = "";
+        foreach ($supportedLanguages as $key => $supportedLanguage) {
+            $lang = str_replace("-", "_", $supportedLanguage);
+            $languageList .= " COUNT($lang) AS $lang ";
+            $languageList .= $key !== count($supportedLanguages) - 1 ? ', ' : '' ;
+        }
+        $query_logsByLanguage = "SELECT $languageList FROM $table";
+        $logsByLanguage = $GLOBALS['wpdb']->get_results($query_logsByLanguage);
+        $logsByLanguage = (array) $logsByLanguage[0];
+
+        $GLOBALS['cfg']['logsByLanguage'] = $logsByLanguage;
+        return $logsByLanguage;
+    }
 }
 
 function showGlobalLanguagesProgress() {
-    $allSavedLogs = getLogsByLanguage(getDefaultLanguage());
+    $allSavedLogs = getLogsByLanguage()[str_replace("-", "_", getDefaultLanguage())];
     $translationLanguages = getTranslationLanguages();
     $output = "";
         foreach ($translationLanguages as $language) {
             $output .= "<span class='md-translate__language-global'><label>$language</label>";
             if ($allSavedLogs > 0) {
-                $output .= createProgressBar(getLogsByLanguage($language),$allSavedLogs);
+                $output .= createProgressBar(getLogsByLanguage()[str_replace("-", "_", $language)],$allSavedLogs);
             } else {
                 $output .= createProgressBar(0,100);
             }
@@ -83,7 +97,8 @@ function createPostListByType($postType, $allPostListData) {
 }
 
 function getAllPostListData() {
-    $table = $GLOBALS['wp_my_dictionary'];
+    showFunctionFired('getAllPostListData()');
+    $table = $GLOBALS['cfg']['table'];
     $defaultLanguage = str_replace("-", "_", getDefaultLanguage());
     $translationLanguages = getTranslationLanguages();
     $addSelectLanguage = "";
@@ -94,6 +109,7 @@ function getAllPostListData() {
         $addWhereLanguage .= " OR $lang IS NOT NULL ";
     }
     $query_getAllPostListData = "SELECT $table.post_id, wp_posts.post_title AS post_title, wp_posts.guid AS post_guid, post_type AS post_type, count($defaultLanguage) AS $defaultLanguage $addSelectLanguage FROM $table, wp_posts WHERE ($defaultLanguage IS NOT NULL $addWhereLanguage) AND $table.post_id = wp_posts.ID GROUP BY $table.post_id ORDER BY post_type ASC, post_id DESC";
+    // echo $query_getAllPostListData;
     return $GLOBALS['wpdb']->get_results($query_getAllPostListData);
 }
 

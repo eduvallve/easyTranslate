@@ -1,6 +1,7 @@
 <?php
 
 function getDataFromPost($post_id) {
+    showFunctionFired('getDataFromPost($post_id)');
     $getDataFromPost = "SELECT post_content FROM wp_posts WHERE ID = {$post_id}";
     $dataFromPost = $GLOBALS['wpdb']->get_results($getDataFromPost);
     $post_content = implode(array_column($dataFromPost, 'post_content'));
@@ -26,7 +27,8 @@ function cleanHtmlTags($post_content) {
 }
 
 function getSavedPostTexts($post_id) {
-    $table = $GLOBALS['wp_my_dictionary'];
+    showFunctionFired('getSavedPostTexts($post_id)');
+    $table = $GLOBALS['cfg']['table'];
     $defaultLanguage = str_replace("-", "_",getDefaultLanguage());
     $getSavedPostTexts = "SELECT {$defaultLanguage} FROM {$table} WHERE post_id = {$post_id} ORDER BY id ASC";
     $savedPostTexts = $GLOBALS['wpdb']->get_results($getSavedPostTexts);
@@ -34,7 +36,7 @@ function getSavedPostTexts($post_id) {
 }
 
 function savePostTexts($post_id, $post_diffTexts) {
-    $table = $GLOBALS['wp_my_dictionary'];
+    $table = $GLOBALS['cfg']['table'];
     $defaultLanguage = str_replace("-", "_",getDefaultLanguage());
     $query_savePostTexts = "INSERT INTO {$table} (post_id, {$defaultLanguage}) VALUES ";
     $acum = 0;
