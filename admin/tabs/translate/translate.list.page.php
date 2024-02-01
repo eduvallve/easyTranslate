@@ -21,6 +21,7 @@ function getLogsByLanguage() {
     } else {
         showFunctionFired('getLogsByLanguage()');
         $table = $GLOBALS['cfg']['table'];
+        $defaultLanguage = str_replace("-", "_", getDefaultLanguage());
         $supportedLanguages = getSupportedLanguages();
         $languageList = "";
         foreach ($supportedLanguages as $key => $supportedLanguage) {
@@ -28,7 +29,7 @@ function getLogsByLanguage() {
             $languageList .= " COUNT($lang) AS $lang ";
             $languageList .= $key !== count($supportedLanguages) - 1 ? ', ' : '' ;
         }
-        $query_logsByLanguage = "SELECT $languageList FROM $table";
+        $query_logsByLanguage = "SELECT $languageList FROM $table WHERE track_language = '$defaultLanguage'";
         $logsByLanguage = $GLOBALS['wpdb']->get_results($query_logsByLanguage);
         $logsByLanguage = (array) $logsByLanguage[0];
 
@@ -38,13 +39,15 @@ function getLogsByLanguage() {
 }
 
 function showGlobalLanguagesProgress() {
-    $allSavedLogs = getLogsByLanguage()[str_replace("-", "_", getDefaultLanguage())];
+    $maxSavedLogs = getLogsByLanguage()[str_replace("-", "_", getDefaultLanguage())];
+    // $maxSavedLogs = max(getLogsByLanguage());
+
     $translationLanguages = getTranslationLanguages();
     $output = "";
         foreach ($translationLanguages as $language) {
             $output .= "<span class='md-translate__language-global'><label>$language</label>";
-            if ($allSavedLogs > 0) {
-                $output .= createProgressBar(getLogsByLanguage()[str_replace("-", "_", $language)],$allSavedLogs);
+            if ($maxSavedLogs > 0) {
+                $output .= createProgressBar(getLogsByLanguage()[str_replace("-", "_", $language)],$maxSavedLogs);
             } else {
                 $output .= createProgressBar(0,100);
             }
@@ -108,7 +111,7 @@ function getAllPostListData() {
         $addSelectLanguage .= ", count($lang) AS $lang ";
         $addWhereLanguage .= " OR $lang IS NOT NULL ";
     }
-    $query_getAllPostListData = "SELECT $table.post_id, wp_posts.post_title AS post_title, wp_posts.guid AS post_guid, post_type AS post_type, count($defaultLanguage) AS $defaultLanguage $addSelectLanguage FROM $table, wp_posts WHERE ($defaultLanguage IS NOT NULL $addWhereLanguage) AND $table.post_id = wp_posts.ID GROUP BY $table.post_id ORDER BY post_type ASC, post_id DESC";
+    $query_getAllPostListData = "SELECT $table.post_id, wp_posts.post_title AS post_title, wp_posts.guid AS post_guid, post_type AS post_type, count($defaultLanguage) AS $defaultLanguage $addSelectLanguage FROM $table, wp_posts WHERE ($defaultLanguage IS NOT NULL $addWhereLanguage) AND $table.post_id = wp_posts.ID AND $table.track_language = '$defaultLanguage' GROUP BY $table.post_id ORDER BY post_type ASC, post_id DESC";
     // echo $query_getAllPostListData;
     return $GLOBALS['wpdb']->get_results($query_getAllPostListData);
 }
