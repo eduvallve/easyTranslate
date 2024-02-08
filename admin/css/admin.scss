@@ -439,7 +439,8 @@ td.#{$post-type}__area {
             }
 
             &-translations {
-                width: 100%;
+                width: calc(100% - 2em);
+                margin-left: auto;
                 display: flex;
                 justify-content: space-between;
                 flex-wrap: wrap;
@@ -457,6 +458,7 @@ td.#{$post-type}__area {
                     align-items: start;
                     flex-direction: column;
                     padding-left: 2px;
+                    position: relative;
 
                     @media screen and (min-width: 440px) {
                         width: calc(100% / 2 - 1em);
@@ -483,6 +485,17 @@ td.#{$post-type}__area {
                     font-size: 1em;
                     color: #1d2327;
                     border: 1px solid #e6e6e6;
+                }
+
+                &-icon-mobile {
+                    position: absolute;
+                    line-height: 1em;
+                    top: 4px;
+                    left: -1.5em;
+
+                    @media screen and (min-width: 783px) {
+                        display: none;
+                    }
                 }
             }
         }

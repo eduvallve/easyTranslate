@@ -26,13 +26,33 @@ function cleanHtmlTags($post_content) {
     return array_values($post_innerText);
 }
 
-function getSavedPostTexts($post_id) {
-    showFunctionFired('getSavedPostTexts($post_id)');
-    $table = $GLOBALS['cfg']['table'];
-    $defaultLanguage = convertLanguageCodesForDB(getDefaultLanguage());
-    $getSavedPostTexts = "SELECT $defaultLanguage FROM $table WHERE post_id = $post_id AND track_language = '$defaultLanguage' ORDER BY id ASC";
-    $savedPostTexts = $GLOBALS['wpdb']->get_results($getSavedPostTexts);
-    return array_column($savedPostTexts, $defaultLanguage);
+function getSavedPostTexts($post_id, $isAdmin = false) {
+    if ( isset($GLOBALS['cfg']['savedPostTexts']) ) {
+        return $GLOBALS['cfg']['savedPostTexts'];
+    } else {
+        showFunctionFired('getSavedPostTexts($post_id)');
+        $table = $GLOBALS['cfg']['table'];
+
+        $defaultLanguage = convertLanguageCodesForDB(getDefaultLanguage());
+        $supportedLanguages = array_map(function($lang) {
+            return convertLanguageCodesForDB($lang);
+        }, getSupportedLanguages());
+
+        $requestedLanguages = $isAdmin ? implode(", ",$supportedLanguages) : $defaultLanguage ;
+
+        $query_getSavedPostTexts = "SELECT $requestedLanguages FROM $table WHERE post_id = $post_id AND track_language = '$defaultLanguage' ORDER BY id ASC";
+        // echo $query_getSavedPostTexts.'<hr>';
+        $getSavedPostTexts = $GLOBALS['wpdb']->get_results($query_getSavedPostTexts);
+
+        if ($isAdmin) {
+            $savedPostTexts = $getSavedPostTexts;
+        } else {
+            $savedPostTexts = array_column($getSavedPostTexts, $defaultLanguage);
+        }
+
+        $GLOBALS['cfg']['savedPostTexts'] = $savedPostTexts;
+        return $savedPostTexts;
+    }
 }
 
 function savePostTexts($post_id, $post_diffTexts) {

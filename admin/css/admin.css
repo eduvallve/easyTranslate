@@ -352,7 +352,8 @@ td.md-post-type__area label:first-child {
   }
 }
 #md-translate .md-translate__page--item-translations {
-  width: 100%;
+  width: calc(100% - 2em);
+  margin-left: auto;
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
@@ -371,6 +372,7 @@ td.md-post-type__area label:first-child {
   align-items: start;
   flex-direction: column;
   padding-left: 2px;
+  position: relative;
 }
 @media screen and (min-width: 440px) {
   #md-translate .md-translate__page--item-translations label {
@@ -399,6 +401,17 @@ td.md-post-type__area label:first-child {
   font-size: 1em;
   color: #1d2327;
   border: 1px solid #e6e6e6;
+}
+#md-translate .md-translate__page--item-translations-icon-mobile {
+  position: absolute;
+  line-height: 1em;
+  top: 4px;
+  left: -1.5em;
+}
+@media screen and (min-width: 783px) {
+  #md-translate .md-translate__page--item-translations-icon-mobile {
+    display: none;
+  }
 }
 
 .md-msg {
