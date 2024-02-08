@@ -21,11 +21,11 @@ function getLogsByLanguage() {
     } else {
         showFunctionFired('getLogsByLanguage()');
         $table = $GLOBALS['cfg']['table'];
-        $defaultLanguage = str_replace("-", "_", getDefaultLanguage());
+        $defaultLanguage = convertLanguageCodesForDB(getDefaultLanguage());
         $supportedLanguages = getSupportedLanguages();
         $languageList = "";
         foreach ($supportedLanguages as $key => $supportedLanguage) {
-            $lang = str_replace("-", "_", $supportedLanguage);
+            $lang = convertLanguageCodesForDB($supportedLanguage);
             $languageList .= " COUNT($lang) AS $lang ";
             $languageList .= $key !== count($supportedLanguages) - 1 ? ', ' : '' ;
         }
@@ -39,7 +39,7 @@ function getLogsByLanguage() {
 }
 
 function showGlobalLanguagesProgress() {
-    $maxSavedLogs = getLogsByLanguage()[str_replace("-", "_", getDefaultLanguage())];
+    $maxSavedLogs = getLogsByLanguage()[convertLanguageCodesForDB(getDefaultLanguage())];
     // $maxSavedLogs = max(getLogsByLanguage());
 
     $translationLanguages = getTranslationLanguages();
@@ -47,7 +47,7 @@ function showGlobalLanguagesProgress() {
         foreach ($translationLanguages as $language) {
             $output .= "<span class='md-translate__language-global'><label>$language</label>";
             if ($maxSavedLogs > 0) {
-                $output .= createProgressBar(getLogsByLanguage()[str_replace("-", "_", $language)],$maxSavedLogs);
+                $output .= createProgressBar(getLogsByLanguage()[convertLanguageCodesForDB($language)],$maxSavedLogs);
             } else {
                 $output .= createProgressBar(0,100);
             }
@@ -64,11 +64,27 @@ function headingCells() {
     echo '<tr>
         <th scope="col">Title</th>
         <th scope="col">Progress</th>
+        <th scope="col">Actions</th>
     </tr>';
 }
 
+function translateBtn($post,$isTitle) {
+    $defaultLanguage = convertLanguageCodesForDB(getDefaultLanguage());
+
+    $titleClass = $isTitle ? 'class="row-title"' : '' ;
+    $title = $isTitle ? $post->post_title : "Translate" ;
+
+    $route = !isNullValue($post->$defaultLanguage) ? "&translate_id=".$post->post_id : "" ;
+    $href = !isNullValue($post->$defaultLanguage) ? ' href="'.$GLOBALS['cfg']['actualUrl'].$route.'"' : '' ;
+    $tag = !isNullValue($post->$defaultLanguage) ? 'a' : 'span' ;
+    $ariaLabel = !isNullValue($post->$defaultLanguage) ? " aria-label='Translate $post->post_title'" : '' ;
+
+    echo "<$tag $titleClass $href $ariaLabel>$title</$tag>";
+}
+
 function createPostListByType($postType, $allPostListData) {
-    $actualUrl = (empty($_SERVER['HTTPS']) ? 'http' : 'https') . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+    $defaultLanguage = convertLanguageCodesForDB(getDefaultLanguage());
+    $GLOBALS['cfg']['actualUrl'] = (empty($_SERVER['HTTPS']) ? 'http' : 'https') . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
     $isEmpty = true;
     foreach ($allPostListData as $post) {
         if ($post->post_type === $postType) {
@@ -77,17 +93,33 @@ function createPostListByType($postType, $allPostListData) {
                 <tr id="post-<?php echo $post->post_id; ?>" class="md-translate__item" data-colname="Title">
                     <td class="md-translate__item-title">
                         <strong>
-                            <a class="row-title" href="<?php echo $actualUrl."&translate_id=".$post->post_id; ?>" aria-label="“<?php echo $post->post_title; ?>” (Translate)"><?php echo $post->post_title; ?></a>
+                            <?php translateBtn($post,true); ?>
                         </strong>
                         <div class="row-actions">
-                            <span class="Translate">
-                                <a href="<?php echo $actualUrl."&translate_id=".$post->post_id; ?>" aria-label="Translate “<?php echo $post->post_title; ?>”">Translate</a> | </span>
+                            <?php
+                                if ( !isNullValue($post->$defaultLanguage) ) {
+                                    echo '<span class="translate">';
+                                    translateBtn($post,false);
+                                    echo ' | </span>';
+                                }
+                            ?>
                             <span class="view">
                                 <a href="<?php echo $post->post_guid; ?>" target="_blank" rel="bookmark" aria-label="View “<?php echo $post->post_title; ?>”">View</a></span>
                         </div>
                     </td>
                     <td class="md-translate__item-progress">
                         <?php showSingleProgressBar($post); ?>
+                    </td>
+                    <td class="md-translate__item-actions">
+                        <?php
+                            // $actual_link = (empty($_SERVER['HTTPS']) ? 'http' : 'https') . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+                            $defaultLanguage = convertLanguageCodesForDB(getDefaultLanguage());
+                            $submitValue = !isNullValue($post->$defaultLanguage) ? 'Re-scan' : 'Scan' ;
+                        ?>
+                        <form class="md-translate__item-single-scan-form" method="post">
+                            <input type="hidden" name="scan_id" value="<?php echo $post->post_id; ?>">
+                            <input type="submit" value="<?php echo $submitValue; ?>" class="button-secondary">
+                        </form>
                     </td>
                 </tr>
             <?php
@@ -102,18 +134,44 @@ function createPostListByType($postType, $allPostListData) {
 function getAllPostListData() {
     showFunctionFired('getAllPostListData()');
     $table = $GLOBALS['cfg']['table'];
-    $defaultLanguage = str_replace("-", "_", getDefaultLanguage());
+    $defaultLanguage = convertLanguageCodesForDB(getDefaultLanguage());
     $translationLanguages = getTranslationLanguages();
     $addSelectLanguage = "";
     $addWhereLanguage = "";
-    foreach ($translationLanguages as $translationLanguage) {
-        $lang = str_replace("-", "_", $translationLanguage);
+    $languageColumnNullFields = "";
+    foreach ($translationLanguages as $key => $translationLanguage) {
+        $lang = convertLanguageCodesForDB($translationLanguage);
         $addSelectLanguage .= ", count($lang) AS $lang ";
         $addWhereLanguage .= " OR $lang IS NOT NULL ";
+        $languageColumnNullFields .= ", 'null' ";
     }
-    $query_getAllPostListData = "SELECT $table.post_id, wp_posts.post_title AS post_title, wp_posts.guid AS post_guid, post_type AS post_type, count($defaultLanguage) AS $defaultLanguage $addSelectLanguage FROM $table, wp_posts WHERE ($defaultLanguage IS NOT NULL $addWhereLanguage) AND $table.post_id = wp_posts.ID AND $table.track_language = '$defaultLanguage' GROUP BY $table.post_id ORDER BY post_type ASC, post_id DESC";
-    // echo $query_getAllPostListData;
-    return $GLOBALS['wpdb']->get_results($query_getAllPostListData);
+    $languageColumnNullFields .= ", 'null' ";
+    $supportedPostTypes = getSupportedPostTypes();
+    $addPostTypes = "";
+    if ( count($supportedPostTypes) > 0 ) {
+        $addPostTypes .= " ( ";
+        foreach ($supportedPostTypes as $key => $supportedPostType) {
+            $addPostTypes .= " wp_posts.post_type = '$supportedPostType' ";
+            if ( $key !== count($supportedPostTypes) - 1 ) {
+                $addPostTypes .= " OR ";
+            }
+        }
+        $addPostTypes .= " ) ";
+    }
+
+    $query_getAllPostListData = "SELECT $table.post_id, wp_posts.post_title AS post_title, wp_posts.guid AS post_guid, post_type AS post_type, count($defaultLanguage) AS $defaultLanguage $addSelectLanguage FROM $table, wp_posts WHERE ($defaultLanguage IS NOT NULL $addWhereLanguage) AND $table.post_id = wp_posts.ID AND $table.track_language = '$defaultLanguage' GROUP BY $table.post_id UNION SELECT wp_posts.ID as post_id, wp_posts.post_title AS post_title, wp_posts.guid AS post_guid, post_type AS post_type $languageColumnNullFields FROM wp_posts, $table WHERE $addPostTypes AND post_title != 'Auto Draft' ORDER BY post_type ASC, post_id DESC";
+    // echo $query_getAllPostListData.'<hr>';
+    $allPostListData = $GLOBALS['wpdb']->get_results($query_getAllPostListData);
+
+    foreach ($allPostListData as $index => $rawData) {
+        foreach ($allPostListData as $key => $data) {
+            if ($index !== $key && $rawData->post_title === $data->post_title && $data->$defaultLanguage === 'null') {
+                unset($allPostListData[$key]);
+            }
+        }
+    }
+
+    return $allPostListData;
 }
 
 function createPostListTable() {

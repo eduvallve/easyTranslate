@@ -29,7 +29,7 @@ function cleanHtmlTags($post_content) {
 function getSavedPostTexts($post_id) {
     showFunctionFired('getSavedPostTexts($post_id)');
     $table = $GLOBALS['cfg']['table'];
-    $defaultLanguage = str_replace("-", "_",getDefaultLanguage());
+    $defaultLanguage = convertLanguageCodesForDB(getDefaultLanguage());
     $getSavedPostTexts = "SELECT $defaultLanguage FROM $table WHERE post_id = $post_id AND track_language = '$defaultLanguage' ORDER BY id ASC";
     $savedPostTexts = $GLOBALS['wpdb']->get_results($getSavedPostTexts);
     return array_column($savedPostTexts, $defaultLanguage);
@@ -37,7 +37,7 @@ function getSavedPostTexts($post_id) {
 
 function savePostTexts($post_id, $post_diffTexts) {
     $table = $GLOBALS['cfg']['table'];
-    $defaultLanguage = str_replace("-", "_",getDefaultLanguage());
+    $defaultLanguage = convertLanguageCodesForDB(getDefaultLanguage());
     $query_savePostTexts = "INSERT INTO $table (post_id, track_language, $defaultLanguage) VALUES ";
     $acum = 0;
     foreach ($post_diffTexts as $post_text) {
@@ -48,8 +48,7 @@ function savePostTexts($post_id, $post_diffTexts) {
     $savePostTexts = $GLOBALS['wpdb']->query($GLOBALS['wpdb']-> prepare($query_savePostTexts));
 }
 
-function fillDictionaryTable() {
-    $post_id = get_the_ID();
+function fillDictionaryTableByPost($post_id) {
     /**
      * Get:
      * - All texts from post_content
@@ -65,6 +64,11 @@ function fillDictionaryTable() {
     if (count($post_diffTexts) > 0) {
         savePostTexts($post_id, $post_diffTexts);
     }
+}
+
+function fillDictionaryTable() {
+    $post_id = get_the_ID();
+    fillDictionaryTableByPost($post_id);
 }
 
 ?>

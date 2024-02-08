@@ -166,7 +166,7 @@ function addNewDictionaryColumns() {
     $columnLanguages = getColumnLanguages();
     $missingColumnLanguages = array_diff($supportedLanguages, $columnLanguages);
     foreach ($missingColumnLanguages as $missingLanguage) {
-        $lang = str_replace("-", "_",$missingLanguage);
+        $lang = convertLanguageCodesForDB($missingLanguage);
         addLanguagecolumn($lang, $table);
     }
 }

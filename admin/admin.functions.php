@@ -1,5 +1,9 @@
 <?php
 
+function convertLanguageCodesForDB($code) {
+    return str_replace("-", "_", $code);
+}
+
 function getAllLanguages() {
     if (function_exists('plugin_dir_path')) {
         $path = plugin_dir_path( __DIR__ );

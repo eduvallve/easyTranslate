@@ -45,39 +45,43 @@ if ( isset($_POST) && count($_POST) > 0 ) {
             <tr>
                 <th>Supported languages</th>
                 <td>
-                    <table class="md-language__table">
-                        <thead>
-                            <th class="md-language__default-title">Default</th>
-                            <th>Name</th>
-                            <th>Code</th>
-                            <th>Action</th>
-                        </thead>
-                        <tbody>
-                            <?php
-                            $defaultLanguage = getDefaultLanguage();
-                            if ( count(getSupportedLanguages()) > 0 ) {
-                                foreach (getSupportedLanguages() as $language) {
-                                    $checked = $language === $defaultLanguage ? true : false ;
-                                    fillLanguageRow($language,$checked);
+                    <div class="md-language__area">
+                        <table class="md-language__table">
+                            <thead>
+                                <th class="md-language__default-title">Default</th>
+                                <th>Name</th>
+                                <th>Code</th>
+                                <th>Action</th>
+                            </thead>
+                            <tbody>
+                                <?php
+                                $defaultLanguage = getDefaultLanguage();
+                                if ( count(getSupportedLanguages()) > 0 ) {
+                                    foreach (getSupportedLanguages() as $language) {
+                                        $checked = $language === $defaultLanguage ? true : false ;
+                                        fillLanguageRow($language,$checked);
+                                    }
                                 }
-                            }
-                            ?>
-                        </tbody>
-                    </table>
-                    <div class="md-new-language">
-                        <select class="" tabindex="-1" aria-hidden="true">
-                            <option value="">Choose...</option>
-                            <?php echo createLanguageSelect(); ?>
-                        </select>
-                        <button type="button" class="md-add-language button-secondary">Add</button>
-                        <p>Select the languages you wish to make your website available in.</p>
+                                ?>
+                            </tbody>
+                        </table>
+                        <div class="md-new-language">
+                            <p>Select the languages you wish to make your website available in <span class="inline-icon">⤵</span></p>
+                            <select class="" tabindex="-1" aria-hidden="true">
+                                <option value="">Choose...</option>
+                                <?php echo createLanguageSelect(); ?>
+                            </select>
+                            <button type="button" class="md-add-language button-secondary">Add</button>
+                        </div>
                     </div>
                 </td>
             </tr>
             <tr>
                 <th>Supported post types</th>
                 <td class="md-post-type__area">
-                    <?php echo showAvailablePostTypes(); ?>
+                    <div class="md-language__area">
+                        <?php echo showAvailablePostTypes(); ?>
+                    </div>
                 </td>
             </tr>
         </tbody>
