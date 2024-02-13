@@ -4,7 +4,7 @@
  * When form is submitted, values must be saved in DB
  */
 
- if ( isset($_POST) && count($_POST) > 0 ) {
+if ( isset($_POST) && count($_POST) > 0 ) {
     include "translate.post.update.php";
 }
 
@@ -27,7 +27,7 @@ function getSinglePostData($post_id) {
             $addWhereLanguage .= " OR $lang IS NOT NULL ";
         }
 
-        $query_getSinglePostData = "SELECT $table.post_id, wp_posts.post_title AS post_title, wp_posts.guid AS post_guid, post_type AS post_type, count($defaultLanguage) AS $defaultLanguage $addSelectLanguage FROM $table, wp_posts WHERE ($defaultLanguage IS NOT NULL $addWhereLanguage) AND $table.post_id = wp_posts.ID AND $table.track_language = '$defaultLanguage' AND $table.post_id = $post_id GROUP BY $table.post_id";
+        $query_getSinglePostData = "SELECT $table.post_id, wp_posts.post_title AS post_title, wp_posts.guid AS post_guid, post_type AS post_type, count($defaultLanguage) AS $defaultLanguage $addSelectLanguage FROM $table, wp_posts WHERE ($defaultLanguage IS NOT NULL $addWhereLanguage) AND $table.post_id = wp_posts.ID AND $table.track_language = '$defaultLanguage' AND $table.post_id = $post_id AND $table.post_text_id IS NOT NULL GROUP BY $table.post_id";
         // echo $query_getSinglePostData.'<hr>';
         $singlePostData = $GLOBALS['wpdb']->get_results($query_getSinglePostData)[0];
         $GLOBALS['cfg']['getSinglePostData'] = $singlePostData;

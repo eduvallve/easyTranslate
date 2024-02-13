@@ -34,6 +34,19 @@ function cleanHtmlTags($post_content) {
     return $innerText;
 }
 
+function removeDuplicatedRows($duplicateRows) {
+    $condition = '';
+    foreach ( $duplicateRows as $i => $row ) {
+        $condition .= " id = $row ";
+        if ($i < count($duplicateRows) - 1) {
+            $condition .= " OR ";
+        }
+    }
+
+    $query_removeDuplicatedRows = "DELETE FROM wp_my_dictionary WHERE $condition";
+    $removeDuplicatedRows = $GLOBALS['wpdb']->query($GLOBALS['wpdb']-> prepare($query_removeDuplicatedRows));
+}
+
 function getSavedPostTexts($post_id, $isAdmin = false) {
     if ( isset($GLOBALS['cfg']['savedPostTexts']) ) {
         return $GLOBALS['cfg']['savedPostTexts'];
@@ -42,13 +55,14 @@ function getSavedPostTexts($post_id, $isAdmin = false) {
         $table = $GLOBALS['cfg']['table'];
 
         $defaultLanguage = convertLanguageCodesForDB(getDefaultLanguage());
-        $supportedLanguages = array_map(function($lang) {
+        $translationLanguages = array_map(function($lang) {
             return convertLanguageCodesForDB($lang);
-        }, getSupportedLanguages());
+        }, getTranslationLanguages());
 
-        $requestedLanguages = $isAdmin ? implode(", ",$supportedLanguages) : $defaultLanguage ;
+        $requestedLanguages = $isAdmin ? ", ".implode(", ",$translationLanguages) : '' ;
 
-        $query_getSavedPostTexts = "SELECT id, post_text_id, $requestedLanguages FROM $table WHERE post_id = $post_id AND track_language = '$defaultLanguage' ORDER BY post_text_id ASC, id ASC";
+        $query_getSavedPostTexts = "SELECT id, post_text_id, $defaultLanguage $requestedLanguages FROM $table WHERE post_id = $post_id AND track_language = '$defaultLanguage' ORDER BY $defaultLanguage ASC, id ASC";
+        // echo '<br>'.$query_getSavedPostTexts.' <b><u>OK SO FAR</u></b>';
         $getSavedPostTexts = $GLOBALS['wpdb']->get_results($query_getSavedPostTexts);
 
         if ($isAdmin) {
@@ -57,16 +71,25 @@ function getSavedPostTexts($post_id, $isAdmin = false) {
             $savedPostTexts = array_column($getSavedPostTexts, $defaultLanguage);
         }
 
-        // Remove all duplicated cells from the Array
+        /** Remove all duplicated cells from the Array */
         $previousText = "";
+        $duplicateRows = [];
         foreach ($savedPostTexts as $key => $cell ) {
-            if ( $previousText !== $cell->$defaultLanguage ) {
-                $previousText = $cell->$defaultLanguage;
-            } else {
+            if ( $previousText === $cell->$defaultLanguage ) {
                 unset($savedPostTexts[$key]);
+                array_push($duplicateRows, $cell->id);
+            } else {
+                $previousText = $cell->$defaultLanguage;
             }
         }
+        /** Remove all duplicated rows in the DB table */
+        removeDuplicatedRows($duplicateRows);
 
+        usort($savedPostTexts, function($a, $b) {
+            return $a->post_text_id - $b->post_text_id;
+        });
+
+        /** Return right text fragments */
         $GLOBALS['cfg']['savedPostTexts'] = $savedPostTexts;
         return $savedPostTexts;
     }
@@ -97,19 +120,26 @@ function updatePostTextIDs($post_id) {
     $query_cleanIndexValues = "UPDATE $table SET post_text_id = NULL WHERE post_id = $post_id AND track_language = '$defaultLanguage'; ";
     $cleanIndexValues = $GLOBALS['wpdb']->query($GLOBALS['wpdb']-> prepare($query_cleanIndexValues));
 
+    /**
+     * Get data from post
+     */
     $post_innerText = cleanHtmlTags(getDataFromPost($post_id));
     $innerTexts = array_map(function($text) {
         return convertAsciiValues($text);
     }, $post_innerText);
 
-    $post_savedTexts = getSavedPostTexts($post_id, false);
-
+    /**
+     * Get already saved data from DB
+     */
+    $post_savedTexts = getSavedPostTexts($post_id);
     $savedTexts = array_map(function($text) {
         return convertAsciiValues($text);
     }, array_column($post_savedTexts, $defaultLanguage));
-
     $savedTextsIds = array_column($post_savedTexts, 'id');
 
+    /**
+     * Compare them and update post_text_ids accordingly
+     */
     foreach ( $innerTexts as $i => $innerText ) {
         foreach ($savedTexts as $j => $savedText ) {
             if ( $innerText === $savedText ) {
