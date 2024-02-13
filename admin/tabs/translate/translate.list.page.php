@@ -40,12 +40,11 @@ function getLogsByLanguage() {
 
 function showGlobalLanguagesProgress() {
     $maxSavedLogs = getLogsByLanguage()[convertLanguageCodesForDB(getDefaultLanguage())];
-    // $maxSavedLogs = max(getLogsByLanguage());
 
     $translationLanguages = getTranslationLanguages();
     $output = "";
         foreach ($translationLanguages as $language) {
-            $output .= "<span class='md-translate__language-global'><label>$language</label>";
+            $output .= "<span class='md-translate__language-global'><p>$language</p>";
             if ($maxSavedLogs > 0) {
                 $output .= createProgressBar(getLogsByLanguage()[convertLanguageCodesForDB($language)],$maxSavedLogs);
             } else {
@@ -112,7 +111,6 @@ function createPostListByType($postType, $allPostListData) {
                     </td>
                     <td class="md-translate__item-actions">
                         <?php
-                            // $actual_link = (empty($_SERVER['HTTPS']) ? 'http' : 'https') . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
                             $defaultLanguage = convertLanguageCodesForDB(getDefaultLanguage());
                             $submitValue = !isNullValue($post->$defaultLanguage) ? 'Re-scan' : 'Scan' ;
                         ?>

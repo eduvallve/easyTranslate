@@ -67,7 +67,7 @@ if ( isset($_POST) && count($_POST) > 0 ) {
                         </table>
                         <div class="md-new-language">
                             <p>Select the languages you wish to make your website available in <span class="inline-icon">⤵</span></p>
-                            <select class="" tabindex="-1" aria-hidden="true">
+                            <select id="select_language" tabindex="-1" aria-hidden="true">
                                 <option value="">Choose...</option>
                                 <?php echo createLanguageSelect(); ?>
                             </select>

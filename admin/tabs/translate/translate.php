@@ -41,19 +41,16 @@ function showSingleProgressBar($post) {
 
 <div id="md-translate">
     <?php
+        $GLOBALS['cfg']['actual_link'] = (empty($_SERVER['HTTPS']) ? 'http' : 'https') . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+
         if ( isset($_GET['translate_id']) && $_GET['translate_id'] !== '' ) {
             // Page to apply translations in a post / page / etc.
             require_once 'translate.post.php';
-        } else if ( isset($_POST['scan_id']) && $_POST['scan_id'] !== '' ) {
+        } else if ( !isset($_GET['translate_id']) && isset($_POST['scan_id']) && $_POST['scan_id'] !== '' ) {
             // Page to scan a post / page / etc.
             fillDictionaryTableByPost($_POST['scan_id']);
-            // Redirect the user by JS
-            $actual_link = (empty($_SERVER['HTTPS']) ? 'http' : 'https') . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
-            ?>
-                <script type="application/javascript">
-                    window.location.href="<?php echo $actual_link; ?>";
-                </script>
-            <?php
+            // Reload the page to see latest changes
+            reloadPage();
         } else {
             require_once 'translate.list.page.php';
         }

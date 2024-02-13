@@ -180,11 +180,12 @@ td.md-post-type__area label:first-child {
 #md-translate .md-translate__language-global.finished progress::-webkit-progress-value {
   border-width: medium;
 }
-#md-translate .md-translate__language-global label {
+#md-translate .md-translate__language-global p {
   width: fit-content;
+  margin: 0;
 }
 @media screen and (min-width: 783px) {
-  #md-translate .md-translate__language-global label {
+  #md-translate .md-translate__language-global p {
     white-space: nowrap;
   }
 }
@@ -298,6 +299,9 @@ td.md-post-type__area label:first-child {
   #md-translate .md-translate__page--header td {
     display: block;
   }
+}
+#md-translate .md-translate__page--form .submit {
+  text-align: end;
 }
 #md-translate .md-translate__page--type {
   font-size: 12px;

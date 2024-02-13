@@ -1,11 +1,17 @@
 <?php
 
 function getDataFromPost($post_id) {
-    showFunctionFired('getDataFromPost($post_id)');
-    $getDataFromPost = "SELECT post_content FROM wp_posts WHERE ID = $post_id";
-    $dataFromPost = $GLOBALS['wpdb']->get_results($getDataFromPost);
-    $post_content = implode(array_column($dataFromPost, 'post_content'));
-    return $post_content;
+    if ( isset($GLOBALS['cfg']['datafromPost']) ) {
+        return $GLOBALS['cfg']['datafromPost'];
+    } else {
+        showFunctionFired('getDataFromPost($post_id)');
+        $getDataFromPost = "SELECT post_content FROM wp_posts WHERE ID = $post_id";
+        $dataFromPost = $GLOBALS['wpdb']->get_results($getDataFromPost);
+        $post_content = implode(array_column($dataFromPost, 'post_content'));
+
+        $GLOBALS['cfg']['datafromPost'] = $post_content;
+        return $post_content;
+    }
 }
 
 function cleanHtmlTags($post_content) {
@@ -23,7 +29,9 @@ function cleanHtmlTags($post_content) {
     }
 
     // Reset the indexs of the Array. Ex: [2,10,12,16] ==> [0,1,2,3] & return
-    return array_values($post_innerText);
+    $innerText = array_unique(array_values($post_innerText));
+    $GLOBALS['cfg']['cleanHtmlTags'] = $innerText;
+    return $innerText;
 }
 
 function getSavedPostTexts($post_id, $isAdmin = false) {
@@ -40,8 +48,7 @@ function getSavedPostTexts($post_id, $isAdmin = false) {
 
         $requestedLanguages = $isAdmin ? implode(", ",$supportedLanguages) : $defaultLanguage ;
 
-        $query_getSavedPostTexts = "SELECT $requestedLanguages FROM $table WHERE post_id = $post_id AND track_language = '$defaultLanguage' ORDER BY id ASC";
-        // echo $query_getSavedPostTexts.'<hr>';
+        $query_getSavedPostTexts = "SELECT id, post_text_id, $requestedLanguages FROM $table WHERE post_id = $post_id AND track_language = '$defaultLanguage' ORDER BY post_text_id ASC, id ASC";
         $getSavedPostTexts = $GLOBALS['wpdb']->get_results($query_getSavedPostTexts);
 
         if ($isAdmin) {
@@ -50,25 +57,70 @@ function getSavedPostTexts($post_id, $isAdmin = false) {
             $savedPostTexts = array_column($getSavedPostTexts, $defaultLanguage);
         }
 
+        // Remove all duplicated cells from the Array
+        $previousText = "";
+        foreach ($savedPostTexts as $key => $cell ) {
+            if ( $previousText !== $cell->$defaultLanguage ) {
+                $previousText = $cell->$defaultLanguage;
+            } else {
+                unset($savedPostTexts[$key]);
+            }
+        }
+
         $GLOBALS['cfg']['savedPostTexts'] = $savedPostTexts;
         return $savedPostTexts;
     }
 }
 
 function savePostTexts($post_id, $post_diffTexts) {
+    showFunctionFired('savePostTexts($post_id, $post_diffTexts)');
     $table = $GLOBALS['cfg']['table'];
     $defaultLanguage = convertLanguageCodesForDB(getDefaultLanguage());
-    $query_savePostTexts = "INSERT INTO $table (post_id, track_language, $defaultLanguage) VALUES ";
+    $query_savePostTexts = "INSERT INTO $table (post_id, track_language, post_text_id, $defaultLanguage) VALUES ";
     $acum = 0;
-    foreach ($post_diffTexts as $post_text) {
-        $query_savePostTexts .= "($post_id,\"$defaultLanguage\",\"$post_text\")";
+    foreach ($post_diffTexts as $index => $post_text) {
+        $post_text = str_replace('"', '\"', $post_text);
+        $query_savePostTexts .= "($post_id,\"$defaultLanguage\",$index,\"$post_text\")";
         $acum !== count($post_diffTexts) - 1 ? $query_savePostTexts .= ', ' : '' ;
         $acum = $acum + 1;
     }
     $savePostTexts = $GLOBALS['wpdb']->query($GLOBALS['wpdb']-> prepare($query_savePostTexts));
 }
 
-function fillDictionaryTableByPost($post_id) {
+function updatePostTextIDs($post_id) {
+    $defaultLanguage = convertLanguageCodesForDB(getDefaultLanguage());
+    $table = $GLOBALS['cfg']['table'];
+
+    /**
+     * Clean all indexes for the current post
+     */
+    $query_cleanIndexValues = "UPDATE $table SET post_text_id = NULL WHERE post_id = $post_id AND track_language = '$defaultLanguage'; ";
+    $cleanIndexValues = $GLOBALS['wpdb']->query($GLOBALS['wpdb']-> prepare($query_cleanIndexValues));
+
+    $post_innerText = cleanHtmlTags(getDataFromPost($post_id));
+    $innerTexts = array_map(function($text) {
+        return convertAsciiValues($text);
+    }, $post_innerText);
+
+    $post_savedTexts = getSavedPostTexts($post_id, false);
+
+    $savedTexts = array_map(function($text) {
+        return convertAsciiValues($text);
+    }, array_column($post_savedTexts, $defaultLanguage));
+
+    $savedTextsIds = array_column($post_savedTexts, 'id');
+
+    foreach ( $innerTexts as $i => $innerText ) {
+        foreach ($savedTexts as $j => $savedText ) {
+            if ( $innerText === $savedText ) {
+                $query_updateIndexValues = " UPDATE $table SET post_text_id = $i WHERE id = $savedTextsIds[$j]; ";
+                $updateIndexValues = $GLOBALS['wpdb']->query($GLOBALS['wpdb']-> prepare($query_updateIndexValues));
+            }
+        }
+    }
+}
+
+function fillDictionaryTableByPost($post_id, $isAdmin = false) {
     /**
      * Get:
      * - All texts from post_content
@@ -76,11 +128,16 @@ function fillDictionaryTableByPost($post_id) {
      * Compare them and extract new still-not-saved texts in dictionary DB
      */
     $post_innerText = cleanHtmlTags(getDataFromPost($post_id));
-    $post_savedTexts = getSavedPostTexts($post_id);
-    $post_diffTexts = array_diff($post_innerText, $post_savedTexts);
-    /**
-     * If still-not-saved texts found, then save them in dictionary DB
-     */
+
+    $post_savedTexts = getSavedPostTexts($post_id, $isAdmin);
+
+    if ( !$isAdmin ) {
+        $post_diffTexts = array_diff($post_innerText, $post_savedTexts);
+    } else {
+        $defaultLanguage = convertLanguageCodesForDB(getDefaultLanguage());
+        $post_diffTexts = array_diff($post_innerText, array_column($post_savedTexts, $defaultLanguage));
+    }
+
     if (count($post_diffTexts) > 0) {
         savePostTexts($post_id, $post_diffTexts);
     }

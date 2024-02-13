@@ -166,18 +166,7 @@ $post-type: 'md-post-type';
     }
 }
 
-
-// td.#{$post-type}__area {
-//     margin-bottom: 20px;
-//     padding-bottom: 40px;
-//     border-bottom: 1px solid lightgrey;
-// }
-
 td.#{$post-type}__area {
-    // display: flex;
-    // padding-top: 5px;
-    // flex-wrap: wrap;
-
     label:first-child {
         margin-top: 0;
     }
@@ -238,8 +227,9 @@ td.#{$post-type}__area {
 
             @include isFinishedBar();
 
-            label {
+            p {
                 width: fit-content;
+                margin: 0;
 
                 @media screen and (min-width: 783px) {
                     white-space: nowrap;
@@ -383,6 +373,10 @@ td.#{$post-type}__area {
             }
         }
 
+        &--form .submit {
+            text-align: end;
+        }
+
         &--type {
             font-size: 12px;
             font-weight: 700;
@@ -426,7 +420,6 @@ td.#{$post-type}__area {
             &-original {
                 width: 100%;
                 padding: 1em;
-                // border-radius: 5px;
 
                 @media screen and (max-width: 782px) {
                     background-color: #f9f9f9;

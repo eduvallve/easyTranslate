@@ -15,6 +15,7 @@ function createMyDictionaryTable() {
     $query_createMyDictionary_table = "CREATE TABLE IF NOT EXISTS $table (
         id int NOT NULL AUTO_INCREMENT,
         post_id int NOT NULL,
+        post_text_id int NULL,
         track_language varchar(10) NOT NULL,
         ".get_locale()." longtext NULL,
         PRIMARY KEY (id)

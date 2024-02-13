@@ -1,5 +1,15 @@
 <?php
-// $_GET['translate_id']
+
+/**
+ * When form is submitted, values must be saved in DB
+ */
+
+ if ( isset($_POST) && count($_POST) > 0 ) {
+    include "translate.post.update.php";
+}
+
+fillDictionaryTableByPost($_GET['translate_id'], true);
+updatePostTextIDs($_GET['translate_id']);
 
 function getSinglePostData($post_id) {
     if ( isset($GLOBALS['cfg']['getSinglePostData']) ) {
@@ -35,9 +45,13 @@ function showTranslationLine($savedPostText) {
             <div class="md-translate__page--item-translations">
                 <?php
                     foreach ($savedPostText as $lang => $languageVariant) {
-                        if ( $lang !== $defaultLanguage ) {
+                        if ( $lang === 'id' ) {
+                            echo "<input type='hidden' name='id[]' value='$languageVariant'>";
+                            echo "<input type='hidden' name='{$defaultLanguage}[]' value='{$savedPostText->$defaultLanguage}'>";
+                        }
+                        else if ( $lang !== $defaultLanguage && $lang !== 'id' && $lang !== 'post_text_id' ) {
                             ?>
-                                <label for=""><span class="md-translate__page--item-translations-icon-mobile">⤷</span><?php echo $lang; ?> <textarea rows="<?php echo $rows; ?>"><?php echo $languageVariant; ?></textarea></label>
+                                <label for=""><span class="md-translate__page--item-translations-icon-mobile">⤷</span><?php echo $lang; ?> <textarea id="" rows="<?php echo $rows; ?>" name="<?php echo $lang; ?>[]"><?php echo $languageVariant; ?></textarea></label>
                             <?php
                         }
                     }
@@ -50,12 +64,23 @@ function showTranslationLine($savedPostText) {
 function showTranslationLines() {
     $savedPostTexts = getSavedPostTexts($_GET['translate_id'], true);
     foreach ( $savedPostTexts as $savedPostText ) {
-        showTranslationLine($savedPostText);
+        if ( $savedPostText->post_text_id !== null && $savedPostText->post_text_id !== '' ) {
+            showTranslationLine($savedPostText);
+        }
     }
 }
 
+function saveButtons() {
+    ?>
+        <p class="submit">
+            <a href="<?php echo $GLOBALS['cfg']['actual_link']; ?>" class="button-secondary">Scan it again</a>
+            <input type="submit" class="button-primary" value="Save Translations">
+        </p>
+    <?php
+}
 
 ?>
+
 <a href="?page=my-dictionary&tab=translate" class="md-translate__page--back">← Back to Global process</a>
 
 <table class="md-translate__page--header">
@@ -71,8 +96,10 @@ function showTranslationLines() {
     </tr>
 </table>
 
-<div class="md-translate__page--type">TITLE</div>
-
-<div class="md-translate__page--type">CONTENT</div>
-
-<?php showTranslationLines(); ?>
+<form method="post" class="md-translate__page--form">
+    <?php saveButtons(); ?>
+    <div class="md-translate__page--type">TITLE</div>
+    <div class="md-translate__page--type">CONTENT</div>
+    <?php showTranslationLines(); ?>
+    <?php saveButtons(); ?>
+</form>

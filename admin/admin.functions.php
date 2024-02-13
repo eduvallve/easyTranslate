@@ -1,7 +1,22 @@
 <?php
 
+function reloadPage() {
+    ?>
+        <script type="application/javascript">
+            window.location.href="<?php echo $GLOBALS['cfg']['actual_link']; ?>";
+        </script>
+    <?php
+}
+
 function convertLanguageCodesForDB($code) {
     return str_replace("-", "_", $code);
+}
+
+function convertAsciiValues($content) {
+    $content = str_replace('"', '\"', $content);
+    $content = str_replace("'", "\'", $content);
+    $content = htmlentities($content);
+    return $content;
 }
 
 function getAllLanguages() {
