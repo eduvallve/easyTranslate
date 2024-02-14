@@ -157,7 +157,7 @@ function getAllPostListData() {
         $addPostTypes .= " ) ";
     }
 
-    $query_getAllPostListData = "SELECT $table.post_id, wp_posts.post_title AS post_title, wp_posts.guid AS post_guid, post_type AS post_type, count($defaultLanguage) AS $defaultLanguage $addSelectLanguage FROM $table, wp_posts WHERE ($defaultLanguage IS NOT NULL $addWhereLanguage) AND $table.post_id = wp_posts.ID AND $table.track_language = '$defaultLanguage' GROUP BY $table.post_id UNION SELECT wp_posts.ID as post_id, wp_posts.post_title AS post_title, wp_posts.guid AS post_guid, post_type AS post_type $languageColumnNullFields FROM wp_posts WHERE $addPostTypes AND post_title != 'Auto Draft' ORDER BY post_type ASC, post_id DESC";
+    $query_getAllPostListData = "SELECT $table.post_id, wp_posts.post_title AS post_title, wp_posts.guid AS post_guid, post_type AS post_type, count($defaultLanguage) AS $defaultLanguage $addSelectLanguage FROM $table, wp_posts WHERE ($defaultLanguage IS NOT NULL $addWhereLanguage) AND $table.post_id = wp_posts.ID AND $table.track_language = '$defaultLanguage'AND $table.post_text_id IS NOT NULL  GROUP BY $table.post_id UNION SELECT wp_posts.ID as post_id, wp_posts.post_title AS post_title, wp_posts.guid AS post_guid, post_type AS post_type $languageColumnNullFields FROM wp_posts WHERE $addPostTypes AND post_title != 'Auto Draft' ORDER BY post_type ASC, post_id DESC";
     // echo $query_getAllPostListData.'<hr>';
     $allPostListData = $GLOBALS['wpdb']->get_results($query_getAllPostListData);
 

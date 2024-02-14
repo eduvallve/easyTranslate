@@ -238,7 +238,8 @@ td.md-post-type__area label:first-child {
     flex-direction: row;
   }
   #md-translate .col-container > .col-left {
-    width: calc(30% - var(--col-gap));
+    width: calc(10% - var(--col-gap));
+    min-width: max-content;
     padding: 10px 10px 20px 0;
   }
   #md-translate .col-container > .col-right {

@@ -293,7 +293,8 @@ td.#{$post-type}__area {
             flex-direction: row;
 
             &>.col-left {
-                width: calc(30% - var(--col-gap));
+                width: calc(10% - var(--col-gap));
+                min-width: max-content;
                 padding: 10px 10px 20px 0;
             }
 
