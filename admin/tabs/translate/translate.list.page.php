@@ -43,10 +43,11 @@ function showGlobalLanguagesProgress() {
 
     $translationLanguages = getTranslationLanguages();
     $output = "";
-        foreach ($translationLanguages as $language) {
-            $output .= "<span class='md-translate__language-global'><p>$language</p>";
+        foreach ($translationLanguages as $languageCode) {
+            $languageName = getLanguageName($languageCode);
+            $output .= "<span class='md-translate__language-global'><p>$languageName</p>";
             if ($maxSavedLogs > 0) {
-                $output .= createProgressBar(getLogsByLanguage()[convertLanguageCodesForDB($language)],$maxSavedLogs);
+                $output .= createProgressBar(getLogsByLanguage()[convertLanguageCodesForDB($languageCode)],$maxSavedLogs);
             } else {
                 $output .= createProgressBar(0,100);
             }

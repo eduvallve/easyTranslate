@@ -453,6 +453,8 @@ td.#{$post-type}__area {
                     flex-direction: column;
                     padding-left: 2px;
                     position: relative;
+                    font-size: 11px;
+                    color: grey;
 
                     @media screen and (min-width: 440px) {
                         width: calc(100% / 2 - 1em);
@@ -476,7 +478,7 @@ td.#{$post-type}__area {
                     border-radius: 5px;
                     border: 0;
                     font-weight: 200;
-                    font-size: 1em;
+                    font-size: 13px;
                     color: #1d2327;
                     border: 1px solid #e6e6e6;
                 }

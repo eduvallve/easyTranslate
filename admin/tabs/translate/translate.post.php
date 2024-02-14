@@ -51,8 +51,9 @@ function showTranslationLine($savedPostText) {
                             echo "<input type='hidden' name='{$defaultLanguage}[]' value='{$savedPostText->$defaultLanguage}'>";
                         }
                         else if ( $lang !== $defaultLanguage && $lang !== 'id' && $lang !== 'post_text_id' ) {
+                            $languageCode = str_replace("_","-",$lang);
                             ?>
-                                <label for=""><span class="md-translate__page--item-translations-icon-mobile">⤷</span><?php echo $lang; ?> <textarea id="" rows="<?php echo $rows; ?>" name="<?php echo $lang; ?>[]"><?php echo $languageVariant; ?></textarea></label>
+                                <label for=""><span class="md-translate__page--item-translations-icon-mobile">⤷</span><?php echo getLanguageName($languageCode); ?> <textarea id="" rows="<?php echo $rows; ?>" name="<?php echo $lang; ?>[]"><?php echo $languageVariant; ?></textarea></label>
                             <?php
                         }
                     }

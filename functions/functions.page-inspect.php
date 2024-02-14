@@ -51,7 +51,7 @@ function removeDuplicatedRows($duplicateRows) {
     $removeDuplicatedRows = $GLOBALS['wpdb']->query($GLOBALS['wpdb']-> prepare($query_removeDuplicatedRows));
 }
 
-function getSavedPostTexts($post_id, $isAdmin = false) {
+function getSavedPostTexts($post_id, $isPostTranslatePage = false) {
     if ( isset($GLOBALS['cfg']['savedPostTexts']) ) {
         return $GLOBALS['cfg']['savedPostTexts'];
     } else {
@@ -63,7 +63,7 @@ function getSavedPostTexts($post_id, $isAdmin = false) {
             return convertLanguageCodesForDB($lang);
         }, getTranslationLanguages());
 
-        $requestedLanguages = $isAdmin ? ", ".implode(", ",$translationLanguages) : '' ;
+        $requestedLanguages = $isPostTranslatePage ? ", ".implode(", ",$translationLanguages) : '' ;
 
         $query_getSavedPostTexts = "SELECT id, post_text_id, $defaultLanguage $requestedLanguages FROM $table WHERE post_id = $post_id AND track_language = '$defaultLanguage' ORDER BY $defaultLanguage ASC, id ASC";
         // echo '<br>'.$query_getSavedPostTexts.' <b><u>OK SO FAR</u></b>';
@@ -149,7 +149,7 @@ function updatePostTextIDs($post_id) {
     }
 }
 
-function fillDictionaryTableByPost($post_id, $isAdmin = false) {
+function fillDictionaryTableByPost($post_id, $isPostTranslatePage = false) {
     /**
      * Get:
      * - All texts from post_content
@@ -158,7 +158,7 @@ function fillDictionaryTableByPost($post_id, $isAdmin = false) {
      */
     $post_innerText = cleanHtmlTags(getDataFromPost($post_id));
 
-    $post_savedTexts = getSavedPostTexts($post_id, $isAdmin);
+    $post_savedTexts = getSavedPostTexts($post_id, $isPostTranslatePage);
 
     $defaultLanguage = convertLanguageCodesForDB(getDefaultLanguage());
     $post_diffTexts = array_diff($post_innerText, array_column($post_savedTexts, $defaultLanguage));

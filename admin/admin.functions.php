@@ -30,6 +30,10 @@ function getAllLanguages() {
     return json_decode($json,true);
 }
 
+function getLanguageName($languageCode) {
+    return getAllLanguages()[$languageCode];
+}
+
 function getTranslationLanguages() {
     return array_values(array_diff(getSupportedLanguages(),[getDefaultLanguage()]));
 }
