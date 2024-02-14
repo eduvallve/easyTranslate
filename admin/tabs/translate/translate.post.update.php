@@ -27,4 +27,5 @@
     }
 
     updatePostTranslatedValues();
+    successMessage("<span class='dashicons-before dashicons-saved'> All changes saved successfully</span>");
 ?>

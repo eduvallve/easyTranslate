@@ -63,13 +63,7 @@ function getSavedPostTexts($post_id, $isAdmin = false) {
 
         $query_getSavedPostTexts = "SELECT id, post_text_id, $defaultLanguage $requestedLanguages FROM $table WHERE post_id = $post_id AND track_language = '$defaultLanguage' ORDER BY $defaultLanguage ASC, id ASC";
         // echo '<br>'.$query_getSavedPostTexts.' <b><u>OK SO FAR</u></b>';
-        $getSavedPostTexts = $GLOBALS['wpdb']->get_results($query_getSavedPostTexts);
-
-        if ($isAdmin) {
-            $savedPostTexts = $getSavedPostTexts;
-        } else {
-            $savedPostTexts = array_column($getSavedPostTexts, $defaultLanguage);
-        }
+        $savedPostTexts = $GLOBALS['wpdb']->get_results($query_getSavedPostTexts);
 
         /** Remove all duplicated cells from the Array */
         $previousText = "";
@@ -161,12 +155,8 @@ function fillDictionaryTableByPost($post_id, $isAdmin = false) {
 
     $post_savedTexts = getSavedPostTexts($post_id, $isAdmin);
 
-    if ( !$isAdmin ) {
-        $post_diffTexts = array_diff($post_innerText, $post_savedTexts);
-    } else {
-        $defaultLanguage = convertLanguageCodesForDB(getDefaultLanguage());
-        $post_diffTexts = array_diff($post_innerText, array_column($post_savedTexts, $defaultLanguage));
-    }
+    $defaultLanguage = convertLanguageCodesForDB(getDefaultLanguage());
+    $post_diffTexts = array_diff($post_innerText, array_column($post_savedTexts, $defaultLanguage));
 
     if (count($post_diffTexts) > 0) {
         savePostTexts($post_id, $post_diffTexts);
