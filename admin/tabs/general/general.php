@@ -20,8 +20,9 @@ function fillLanguageRow($languageCode, $isDefaultLanguage) {
 }
 
 function showAvailablePostTypes() {
+    $postTable = $GLOBALS['cfg']['postTable'];
     showFunctionFired('showAvailablePostTypes()');
-    $query_getAvailablePostTypes = "SELECT DISTINCT(post_type) FROM wp_posts WHERE post_type != 'revision'";
+    $query_getAvailablePostTypes = "SELECT DISTINCT(post_type) FROM $postTable WHERE post_type != 'revision'";
     $getAvailablePostTypes = $GLOBALS['wpdb']->get_results($query_getAvailablePostTypes);
     $availablePostTypes = array_column($getAvailablePostTypes, 'post_type');
     $supportedPostTypes = getSupportedPostTypes();

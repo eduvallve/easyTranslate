@@ -17,6 +17,7 @@ function getSinglePostData($post_id) {
     } else {
         showFunctionFired('getSinglePostData()');
         $table = $GLOBALS['cfg']['table'];
+        $postTable = $GLOBALS['cfg']['postTable'];
         $defaultLanguage = convertLanguageCodesForDB(getDefaultLanguage());
         $translationLanguages = getTranslationLanguages();
         $addSelectLanguage = "";
@@ -27,7 +28,7 @@ function getSinglePostData($post_id) {
             $addWhereLanguage .= " OR $lang IS NOT NULL ";
         }
 
-        $query_getSinglePostData = "SELECT $table.post_id, wp_posts.post_title AS post_title, wp_posts.guid AS post_guid, post_type AS post_type, count($defaultLanguage) AS $defaultLanguage $addSelectLanguage FROM $table, wp_posts WHERE ($defaultLanguage IS NOT NULL $addWhereLanguage) AND $table.post_id = wp_posts.ID AND $table.track_language = '$defaultLanguage' AND $table.post_id = $post_id AND $table.post_text_id IS NOT NULL GROUP BY $table.post_id";
+        $query_getSinglePostData = "SELECT $table.post_id, $postTable.post_title AS post_title, $postTable.guid AS post_guid, post_type AS post_type, count($defaultLanguage) AS $defaultLanguage $addSelectLanguage FROM $table, $postTable WHERE ($defaultLanguage IS NOT NULL $addWhereLanguage) AND $table.post_id = $postTable.ID AND $table.track_language = '$defaultLanguage' AND $table.post_id = $post_id AND $table.post_text_id IS NOT NULL GROUP BY $table.post_id";
         // echo $query_getSinglePostData.'<hr>';
         $singlePostData = $GLOBALS['wpdb']->get_results($query_getSinglePostData)[0];
         $GLOBALS['cfg']['getSinglePostData'] = $singlePostData;

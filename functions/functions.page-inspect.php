@@ -5,7 +5,8 @@ function getDataFromPost($post_id) {
         return $GLOBALS['cfg']['datafromPost'];
     } else {
         showFunctionFired('getDataFromPost($post_id)');
-        $getDataFromPost = "SELECT post_content FROM wp_posts WHERE ID = $post_id";
+        $postTable = $GLOBALS['cfg']['postTable'];
+        $getDataFromPost = "SELECT post_content FROM $postTable WHERE ID = $post_id";
         $dataFromPost = $GLOBALS['wpdb']->get_results($getDataFromPost);
         $post_content = implode(array_column($dataFromPost, 'post_content'));
 
@@ -35,6 +36,8 @@ function cleanHtmlTags($post_content) {
 }
 
 function removeDuplicatedRows($duplicateRows) {
+    $table = $GLOBALS['cfg']['table'];
+
     $condition = '';
     foreach ( $duplicateRows as $i => $row ) {
         $condition .= " id = $row ";
@@ -43,7 +46,7 @@ function removeDuplicatedRows($duplicateRows) {
         }
     }
 
-    $query_removeDuplicatedRows = "DELETE FROM wp_my_dictionary WHERE $condition";
+    $query_removeDuplicatedRows = "DELETE FROM $table WHERE $condition";
     $removeDuplicatedRows = $GLOBALS['wpdb']->query($GLOBALS['wpdb']-> prepare($query_removeDuplicatedRows));
 }
 

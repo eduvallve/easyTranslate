@@ -26,6 +26,16 @@
         }
     }
 
+    function removeOldInvalidTranslations() {
+
+        $table = $GLOBALS['cfg']['table'];
+        $defaultLanguage = convertLanguageCodesForDB(getDefaultLanguage());
+
+        $query_removeOldInvalidTranslations = "DELETE FROM $table WHERE post_text_id IS NULL AND track_language = '$defaultLanguage'";
+        $removeOldInvalidTranslations = $GLOBALS['wpdb']->query($GLOBALS['wpdb']-> prepare($query_removeOldInvalidTranslations));
+    }
+
     updatePostTranslatedValues();
+    removeOldInvalidTranslations();
     successMessage("<span class='dashicons-before dashicons-saved'> All changes saved successfully</span>");
 ?>

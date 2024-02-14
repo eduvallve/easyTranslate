@@ -3,7 +3,8 @@
 $cfg = array(
     'table' => $GLOBALS['wpdb']->prefix."my_dictionary",
     'tableMeta' => $GLOBALS['wpdb']->prefix."my_dictionary_meta",
-    'get_locale' => str_replace("_", "-",get_locale())
+    'get_locale' => str_replace("_", "-",get_locale()),
+    'postTable' => $GLOBALS['wpdb']->prefix."posts"
 );
 
 /**
