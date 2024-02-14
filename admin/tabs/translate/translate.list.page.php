@@ -19,7 +19,7 @@ function getLogsByLanguage() {
     if ( isset($GLOBALS['cfg']['logsByLanguage']) ) {
         return $GLOBALS['cfg']['logsByLanguage'];
     } else {
-        showFunctionFired('getLogsByLanguage()');
+        showFunctionFired('--> getLogsByLanguage()');
         $table = $GLOBALS['cfg']['table'];
         $defaultLanguage = convertLanguageCodesForDB(getDefaultLanguage());
         $supportedLanguages = getSupportedLanguages();
@@ -130,7 +130,7 @@ function createPostListByType($postType, $allPostListData) {
 }
 
 function getAllPostListData() {
-    showFunctionFired('getAllPostListData()');
+    showFunctionFired('--> getAllPostListData()');
     $table = $GLOBALS['cfg']['table'];
     $postTable = $GLOBALS['cfg']['postTable'];
     $defaultLanguage = convertLanguageCodesForDB(getDefaultLanguage());

@@ -9,12 +9,14 @@ function exists($data) {
  */
 
 function updateDefaultLanguage($language) {
+    showFunctionFired('<-> updateDefaultLanguage($language)');
     $tableMeta = $GLOBALS['cfg']['tableMeta'];
     $query_updateDefaultLanguage = "UPDATE $tableMeta SET meta_key='defaultLanguage', meta_value='$language' WHERE meta_key='defaultLanguage'";
     $updateDefaultLanguage = $GLOBALS['wpdb']->query($GLOBALS['wpdb']-> prepare($query_updateDefaultLanguage));
 }
 
 function updateSupportedLanguages($supportedLanguages) {
+    showFunctionFired('<-> updateSupportedLanguages($supportedLanguages)');
     $tableMeta = $GLOBALS['cfg']['tableMeta'];
     $supportedLanguages = implode(",",$supportedLanguages);
     $query_updateSupportedLanguages = "UPDATE $tableMeta SET meta_key='supportedLanguages', meta_value='$supportedLanguages' WHERE meta_key='supportedLanguages'";
@@ -24,6 +26,7 @@ function updateSupportedLanguages($supportedLanguages) {
 }
 
 function updateSupportedPostTypes($supportedPostTypes) {
+    showFunctionFired('<-> updateSupportedPostTypes($supportedPostTypes)');
     $tableMeta = $GLOBALS['cfg']['tableMeta'];
     $supportedPostTypes = implode(",",$supportedPostTypes);
     $query_updateSupportedPostTypes = "UPDATE $tableMeta SET meta_key='supportedPostTypes', meta_value='$supportedPostTypes' WHERE meta_key='supportedPostTypes'";

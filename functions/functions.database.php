@@ -36,7 +36,7 @@ function createMyDictionaryMetaTable() {
 }
 
 function createDB_pluginTables() {
-    showFunctionFired('createDB_pluginTables()');
+    showFunctionFired('--> createDB_pluginTables()');
     $table = $GLOBALS['cfg']['table'];
     $tableMeta = $GLOBALS['cfg']['tableMeta'];
     $getExistingTables = "SELECT * FROM $table, $tableMeta";
@@ -52,18 +52,21 @@ function createDB_pluginTables() {
  */
 
 function saveDefaultLanguage($defaultLanguage) {
+    showFunctionFired('<-- saveDefaultLanguage($defaultLanguage)');
     $tableMeta = $GLOBALS['cfg']['tableMeta'];
     $query_saveDefaultLanguage = "INSERT INTO $tableMeta (meta_key, meta_value) VALUES ('defaultLanguage', '$defaultLanguage')";
     $saveDefaultLanguage = $GLOBALS['wpdb']->query($GLOBALS['wpdb']-> prepare($query_saveDefaultLanguage));
 }
 
 function saveFirstSupportedLanguage($language) {
+    showFunctionFired('<-- saveFirstSupportedLanguage($language)');
     $tableMeta = $GLOBALS['cfg']['tableMeta'];
     $query_savefirstSupportedLanguage = "INSERT INTO $tableMeta (meta_key, meta_value) VALUES ('supportedLanguages', '$language')";
     $savefirstSupportedLanguage = $GLOBALS['wpdb']->query($GLOBALS['wpdb']-> prepare($query_savefirstSupportedLanguage));
 }
 
 function saveDefaultPostType($defaultPostTypes) {
+    showFunctionFired('<-- saveDefaultPostType($defaultPostTypes)');
     $tableMeta = $GLOBALS['cfg']['tableMeta'];
     $query_saveDefaultPostType = "INSERT INTO $tableMeta (meta_key, meta_value) VALUES ('supportedPostTypes', '$defaultPostTypes')";
     $saveDefaultPostType = $GLOBALS['wpdb']->query($GLOBALS['wpdb']-> prepare($query_saveDefaultPostType));
@@ -77,7 +80,7 @@ function getDefaultLanguage() {
     if ( isset($GLOBALS['cfg']['defaultLanguage']) ) {
         return $GLOBALS['cfg']['defaultLanguage'];
     } else {
-        showFunctionFired('getDefaultLanguage()');
+        showFunctionFired('--> getDefaultLanguage()');
         $tableMeta = $GLOBALS['cfg']['tableMeta'];
         $query_getDefaultLanguage = "SELECT meta_value FROM $tableMeta WHERE meta_key = 'defaultLanguage'";
         $getDefaultLanguage = $GLOBALS['wpdb']->get_results($query_getDefaultLanguage);
@@ -96,7 +99,7 @@ function getSupportedLanguages() {
     if ( isset($GLOBALS['cfg']['supportedLanguages']) ) {
         return $GLOBALS['cfg']['supportedLanguages'];
     } else {
-        showFunctionFired('getSupportedLanguages()');
+        showFunctionFired('--> getSupportedLanguages()');
         $tableMeta = $GLOBALS['cfg']['tableMeta'];
         $query_getSupportedLanguages = "SELECT meta_value FROM $tableMeta WHERE meta_key = 'supportedLanguages'";
         $getSupportedLanguages = $GLOBALS['wpdb']->get_results($query_getSupportedLanguages);
@@ -117,7 +120,7 @@ function getColumnLanguages() {
     if ( isset($GLOBALS['cfg']['columnLanguages']) ) {
         return $GLOBALS['cfg']['columnLanguages'];
     } else {
-        showFunctionFired('getColumnLanguages()');
+        showFunctionFired('--> getColumnLanguages()');
         $table = $GLOBALS['cfg']['table'];
         $query_getColumnLanguages = "SELECT column_name AS column_languages FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='$table' AND column_name NOT LIKE '%id%'";
         $getColumnLanguages = $GLOBALS['wpdb']->get_results($query_getColumnLanguages);
@@ -135,7 +138,7 @@ function getSupportedPostTypes() {
     if ( isset($GLOBALS['cfg']['supportedPostTypes']) ) {
         return $GLOBALS['cfg']['supportedPostTypes'];
     } else {
-        showFunctionFired('getSupportedPostTypes()');
+        showFunctionFired('--> getSupportedPostTypes()');
         $tableMeta = $GLOBALS['cfg']['tableMeta'];
         $query_getSupportedPostTypes = "SELECT meta_value FROM $tableMeta WHERE meta_key = 'supportedPostTypes'";
         $getSupportedPostTypes = $GLOBALS['wpdb']->get_results($query_getSupportedPostTypes);
@@ -156,20 +159,20 @@ function getSupportedPostTypes() {
  * Alter main table when a new language is set
  */
 
-function addLanguageColumn($lang, $table) {
+function addLanguageColumn($lang) {
+    showFunctionFired('<-- addLanguageColumn($lang, $table)');
     $table = $GLOBALS['cfg']['table'];
     $query_addLanguageColumn = "ALTER TABLE $table ADD COLUMN $lang longtext";
     $addLanguageColumn = $GLOBALS['wpdb']->query($GLOBALS['wpdb']-> prepare($query_addLanguageColumn));
 }
 
 function addNewDictionaryColumns() {
-    $table = $GLOBALS['cfg']['table'];
     $supportedLanguages = getSupportedLanguages();
     $columnLanguages = getColumnLanguages();
     $missingColumnLanguages = array_diff($supportedLanguages, $columnLanguages);
     foreach ($missingColumnLanguages as $missingLanguage) {
         $lang = convertLanguageCodesForDB($missingLanguage);
-        addLanguagecolumn($lang, $table);
+        addLanguagecolumn($lang);
     }
 }
 

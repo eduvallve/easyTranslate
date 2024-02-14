@@ -4,7 +4,7 @@ function getDataFromPost($post_id) {
     if ( isset($GLOBALS['cfg']['datafromPost']) ) {
         return $GLOBALS['cfg']['datafromPost'];
     } else {
-        showFunctionFired('getDataFromPost($post_id)');
+        showFunctionFired('--> getDataFromPost($post_id)');
         $postTable = $GLOBALS['cfg']['postTable'];
         $getDataFromPost = "SELECT post_content FROM $postTable WHERE ID = $post_id";
         $dataFromPost = $GLOBALS['wpdb']->get_results($getDataFromPost);
@@ -36,6 +36,7 @@ function cleanHtmlTags($post_content) {
 }
 
 function removeDuplicatedRows($duplicateRows) {
+    showFunctionFired('<-- removeDuplicatedRows($duplicateRows)');
     $table = $GLOBALS['cfg']['table'];
 
     $condition = '';
@@ -54,7 +55,7 @@ function getSavedPostTexts($post_id, $isAdmin = false) {
     if ( isset($GLOBALS['cfg']['savedPostTexts']) ) {
         return $GLOBALS['cfg']['savedPostTexts'];
     } else {
-        showFunctionFired('getSavedPostTexts($post_id)');
+        showFunctionFired('--> getSavedPostTexts($post_id)');
         $table = $GLOBALS['cfg']['table'];
 
         $defaultLanguage = convertLanguageCodesForDB(getDefaultLanguage());
@@ -93,7 +94,7 @@ function getSavedPostTexts($post_id, $isAdmin = false) {
 }
 
 function savePostTexts($post_id, $post_diffTexts) {
-    showFunctionFired('savePostTexts($post_id, $post_diffTexts)');
+    showFunctionFired('--> savePostTexts($post_id, $post_diffTexts)');
     $table = $GLOBALS['cfg']['table'];
     $defaultLanguage = convertLanguageCodesForDB(getDefaultLanguage());
     $query_savePostTexts = "INSERT INTO $table (post_id, track_language, post_text_id, $defaultLanguage) VALUES ";
@@ -108,6 +109,7 @@ function savePostTexts($post_id, $post_diffTexts) {
 }
 
 function updatePostTextIDs($post_id) {
+    showFunctionFired('<-> updatePostTextIDs($post_id)');
     $defaultLanguage = convertLanguageCodesForDB(getDefaultLanguage());
     $table = $GLOBALS['cfg']['table'];
 

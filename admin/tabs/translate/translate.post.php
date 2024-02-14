@@ -15,7 +15,7 @@ function getSinglePostData($post_id) {
     if ( isset($GLOBALS['cfg']['getSinglePostData']) ) {
         return $GLOBALS['cfg']['getSinglePostData'];
     } else {
-        showFunctionFired('getSinglePostData()');
+        showFunctionFired('--> getSinglePostData()');
         $table = $GLOBALS['cfg']['table'];
         $postTable = $GLOBALS['cfg']['postTable'];
         $defaultLanguage = convertLanguageCodesForDB(getDefaultLanguage());

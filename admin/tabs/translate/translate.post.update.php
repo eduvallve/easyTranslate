@@ -1,6 +1,6 @@
 <?php
     function updatePostTranslatedValues() {
-
+        showFunctionFired('<-> updatePostTranslatedValues()');
         $table = $GLOBALS['cfg']['table'];
         $defaultLanguage = convertLanguageCodesForDB(getDefaultLanguage());
 
@@ -27,7 +27,7 @@
     }
 
     function removeOldInvalidTranslations() {
-
+        showFunctionFired('<-- removeOldInvalidTranslations()');
         $table = $GLOBALS['cfg']['table'];
         $defaultLanguage = convertLanguageCodesForDB(getDefaultLanguage());
 
