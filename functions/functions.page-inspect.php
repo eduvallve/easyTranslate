@@ -51,45 +51,51 @@ function removeDuplicatedRows($duplicateRows) {
     $removeDuplicatedRows = $GLOBALS['wpdb']->query($GLOBALS['wpdb']-> prepare($query_removeDuplicatedRows));
 }
 
+function querySavedPostTexts($post_id, $isPostTranslatePage = false) {
+    showFunctionFired('--> getSavedPostTexts($post_id)');
+    $table = $GLOBALS['cfg']['table'];
+
+    $defaultLanguage = convertLanguageCodesForDB(getDefaultLanguage());
+    $translationLanguages = array_map(function($lang) {
+        return convertLanguageCodesForDB($lang);
+    }, getTranslationLanguages());
+
+    $requestedLanguages = $isPostTranslatePage ? ", ".implode(", ",$translationLanguages) : '' ;
+
+    $query_getSavedPostTexts = "SELECT id, post_text_id, $defaultLanguage $requestedLanguages FROM $table WHERE post_id = $post_id AND track_language = '$defaultLanguage' ORDER BY $defaultLanguage ASC, id ASC";
+    // echo '<br>'.$query_getSavedPostTexts.' <b><u>OK SO FAR</u></b>';
+    $savedPostTexts = $GLOBALS['wpdb']->get_results($query_getSavedPostTexts);
+
+    /** Remove all duplicated cells from the Array */
+    $previousText = "";
+    $duplicateRows = [];
+    foreach ($savedPostTexts as $key => $cell ) {
+        if ( $previousText === $cell->$defaultLanguage ) {
+            unset($savedPostTexts[$key]);
+            array_push($duplicateRows, $cell->id);
+        } else {
+            $previousText = $cell->$defaultLanguage;
+        }
+    }
+    /** Remove all duplicated rows in the DB table */
+    if (count($duplicateRows) > 0) {
+        removeDuplicatedRows($duplicateRows);
+    }
+
+    usort($savedPostTexts, function($a, $b) {
+        return $a->post_text_id - $b->post_text_id;
+    });
+
+    /** Return right text fragments */
+    $GLOBALS['cfg']['savedPostTexts'] = $savedPostTexts;
+    return $savedPostTexts;
+}
+
 function getSavedPostTexts($post_id, $isPostTranslatePage = false) {
     if ( isset($GLOBALS['cfg']['savedPostTexts']) ) {
         return $GLOBALS['cfg']['savedPostTexts'];
     } else {
-        showFunctionFired('--> getSavedPostTexts($post_id)');
-        $table = $GLOBALS['cfg']['table'];
-
-        $defaultLanguage = convertLanguageCodesForDB(getDefaultLanguage());
-        $translationLanguages = array_map(function($lang) {
-            return convertLanguageCodesForDB($lang);
-        }, getTranslationLanguages());
-
-        $requestedLanguages = $isPostTranslatePage ? ", ".implode(", ",$translationLanguages) : '' ;
-
-        $query_getSavedPostTexts = "SELECT id, post_text_id, $defaultLanguage $requestedLanguages FROM $table WHERE post_id = $post_id AND track_language = '$defaultLanguage' ORDER BY $defaultLanguage ASC, id ASC";
-        // echo '<br>'.$query_getSavedPostTexts.' <b><u>OK SO FAR</u></b>';
-        $savedPostTexts = $GLOBALS['wpdb']->get_results($query_getSavedPostTexts);
-
-        /** Remove all duplicated cells from the Array */
-        $previousText = "";
-        $duplicateRows = [];
-        foreach ($savedPostTexts as $key => $cell ) {
-            if ( $previousText === $cell->$defaultLanguage ) {
-                unset($savedPostTexts[$key]);
-                array_push($duplicateRows, $cell->id);
-            } else {
-                $previousText = $cell->$defaultLanguage;
-            }
-        }
-        /** Remove all duplicated rows in the DB table */
-        removeDuplicatedRows($duplicateRows);
-
-        usort($savedPostTexts, function($a, $b) {
-            return $a->post_text_id - $b->post_text_id;
-        });
-
-        /** Return right text fragments */
-        $GLOBALS['cfg']['savedPostTexts'] = $savedPostTexts;
-        return $savedPostTexts;
+        return querySavedPostTexts($post_id, $isPostTranslatePage);
     }
 }
 
@@ -149,6 +155,23 @@ function updatePostTextIDs($post_id) {
     }
 }
 
+function removeObsoleteTranslations($post_diffTexts_reverse, $post_id, $isPostTranslatePage) {
+    showFunctionFired('<-- removeObsoleteTranslations()');
+    $table = $GLOBALS['cfg']['table'];
+    $defaultLanguage = convertLanguageCodesForDB(getDefaultLanguage());
+    $post_savedTexts = getSavedPostTexts($post_id, $isPostTranslatePage);
+
+    $keys = array_keys($post_diffTexts_reverse);
+    foreach ($post_savedTexts as $text) {
+        foreach ($keys as $key) {
+            if (intVal($text->post_text_id) === intVal($key)) {
+                $query_removeObsoleteTranslations = "DELETE FROM $table WHERE id = {$text->id}";
+                $removeObsoleteTranslations = $GLOBALS['wpdb']->query($GLOBALS['wpdb']-> prepare($query_removeObsoleteTranslations));
+            }
+        }
+    }
+}
+
 function fillDictionaryTableByPost($post_id, $isPostTranslatePage = false) {
     /**
      * Get:
@@ -166,6 +189,14 @@ function fillDictionaryTableByPost($post_id, $isPostTranslatePage = false) {
     if (count($post_diffTexts) > 0) {
         savePostTexts($post_id, $post_diffTexts);
     }
+
+    $post_diffTexts_reverse = array_diff(array_column($post_savedTexts, $defaultLanguage), $post_innerText);
+
+    if (count($post_diffTexts_reverse) > 0) {
+        removeObsoleteTranslations($post_diffTexts_reverse, $post_id, $isPostTranslatePage);
+    }
+
+    return count($post_diffTexts) > 0;
 }
 
 function fillDictionaryTable() {

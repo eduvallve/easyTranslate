@@ -8,8 +8,12 @@ if ( isset($_POST) && count($_POST) > 0 ) {
     include "translate.post.update.php";
 }
 
-fillDictionaryTableByPost($_GET['translate_id'], true);
-updatePostTextIDs($_GET['translate_id']);
+if (fillDictionaryTableByPost($_GET['translate_id'], true)) {
+    querySavedPostTexts($_GET['translate_id'], true);
+    updatePostTextIDs($_GET['translate_id']);
+    querySavedPostTexts($_GET['translate_id'], true);
+    fillDictionaryTableByPost($_GET['translate_id'], true);
+}
 
 function getSinglePostData($post_id) {
     if ( isset($GLOBALS['cfg']['getSinglePostData']) ) {
@@ -48,7 +52,6 @@ function showTranslationLine($savedPostText) {
                     foreach ($savedPostText as $lang => $languageVariant) {
                         if ( $lang === 'id' ) {
                             echo "<input type='hidden' name='id[]' value='$languageVariant'>";
-                            echo "<input type='hidden' name='{$defaultLanguage}[]' value='{$savedPostText->$defaultLanguage}'>";
                         }
                         else if ( $lang !== $defaultLanguage && $lang !== 'id' && $lang !== 'post_text_id' ) {
                             $languageCode = str_replace("_","-",$lang);

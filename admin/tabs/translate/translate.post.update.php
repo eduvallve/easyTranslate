@@ -9,7 +9,6 @@
         }, getTranslationLanguages());
 
         foreach ($_POST['id'] as $key => $id) {
-            $defaultText = $_POST[$defaultLanguage][$key];
             $applyTranslations = "";
             foreach ($translationLanguages as $i => $language) {
                 $value = 'NULL';
