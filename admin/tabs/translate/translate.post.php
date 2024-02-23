@@ -78,7 +78,7 @@ function showTranslationLines() {
 function saveButtons() {
     ?>
         <p class="submit">
-            <a href="<?php echo $GLOBALS['cfg']['actual_link']; ?>" class="button-secondary">Scan it again</a>
+            <a href="<?php echo $GLOBALS['cfg']['current_link']; ?>" class="button-secondary">Scan it again</a>
             <input type="submit" class="button-primary" value="Save Translations">
         </p>
     <?php

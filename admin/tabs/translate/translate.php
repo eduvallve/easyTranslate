@@ -41,7 +41,7 @@ function showSingleProgressBar($post) {
 
 <div id="md-translate">
     <?php
-        $GLOBALS['cfg']['actual_link'] = (empty($_SERVER['HTTPS']) ? 'http' : 'https') . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+        $GLOBALS['cfg']['current_link'] = (empty($_SERVER['HTTPS']) ? 'http' : 'https') . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
 
         if ( isset($_GET['translate_id']) && $_GET['translate_id'] !== '' ) {
             // Page to apply translations in a post / page / etc.

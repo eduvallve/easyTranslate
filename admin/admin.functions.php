@@ -3,7 +3,7 @@
 function reloadPage() {
     ?>
         <script type="application/javascript">
-            window.location.href="<?php echo $GLOBALS['cfg']['actual_link']; ?>";
+            window.location.href="<?php echo $GLOBALS['cfg']['current_link']; ?>";
         </script>
     <?php
 }

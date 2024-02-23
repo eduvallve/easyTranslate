@@ -95,7 +95,7 @@ function translateBtn($post,$isTitle) {
     $title = $isTitle ? $post->post_title : "Translate" ;
 
     $route = !isNullValue($post->$defaultLanguage) ? "&translate_id=".$post->post_id : "" ;
-    $href = !isNullValue($post->$defaultLanguage) ? ' href="'.$GLOBALS['cfg']['actualUrl'].$route.'"' : '' ;
+    $href = !isNullValue($post->$defaultLanguage) ? ' href="'.$GLOBALS['cfg']['current_link'].$route.'"' : '' ;
     $tag = !isNullValue($post->$defaultLanguage) ? 'a' : 'span' ;
     $ariaLabel = !isNullValue($post->$defaultLanguage) ? " aria-label='Translate $post->post_title'" : '' ;
 
@@ -104,7 +104,7 @@ function translateBtn($post,$isTitle) {
 
 function createPostListByType($postType, $allPostListData) {
     $defaultLanguage = convertLanguageCodesForDB(getDefaultLanguage());
-    $GLOBALS['cfg']['actualUrl'] = (empty($_SERVER['HTTPS']) ? 'http' : 'https') . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+    $GLOBALS['cfg']['current_link'] = (empty($_SERVER['HTTPS']) ? 'http' : 'https') . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
     $isEmpty = true;
     foreach ($allPostListData as $post) {
         if ($post->post_type === $postType) {
