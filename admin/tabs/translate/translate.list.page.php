@@ -15,12 +15,30 @@ function welcomeMessage() {
  * Start showGlobalLanguagesProgress area
  */
 
+function string_addPostTypes() {
+    $postTable = $GLOBALS['cfg']['postTable'];
+    $supportedPostTypes = getSupportedPostTypes();
+    $addPostTypes = "";
+    if ( count($supportedPostTypes) > 0 ) {
+        $addPostTypes .= " ( ";
+        foreach ($supportedPostTypes as $key => $supportedPostType) {
+            $addPostTypes .= " $postTable.post_type = '$supportedPostType' ";
+            if ( $key !== count($supportedPostTypes) - 1 ) {
+                $addPostTypes .= " OR ";
+            }
+        }
+        $addPostTypes .= " ) ";
+    }
+    return $addPostTypes;
+}
+
 function getLogsByLanguage() {
     if ( isset($GLOBALS['cfg']['logsByLanguage']) ) {
         return $GLOBALS['cfg']['logsByLanguage'];
     } else {
         showFunctionFired('--> getLogsByLanguage()');
         $table = $GLOBALS['cfg']['table'];
+        $postTable = $GLOBALS['cfg']['postTable'];
         $defaultLanguage = convertLanguageCodesForDB(getDefaultLanguage());
         $supportedLanguages = getSupportedLanguages();
         $languageList = "";
@@ -29,7 +47,9 @@ function getLogsByLanguage() {
             $languageList .= " COUNT($lang) AS $lang ";
             $languageList .= $key !== count($supportedLanguages) - 1 ? ', ' : '' ;
         }
-        $query_logsByLanguage = "SELECT $languageList FROM $table WHERE track_language = '$defaultLanguage'";
+
+        $addPostTypes = string_addPostTypes();
+        $query_logsByLanguage = "SELECT $languageList FROM $table, $postTable WHERE track_language = '$defaultLanguage' AND wp_my_dictionary.post_id = wp_posts.ID AND $addPostTypes";
         $logsByLanguage = $GLOBALS['wpdb']->get_results($query_logsByLanguage);
         $logsByLanguage = (array) $logsByLanguage[0];
 
@@ -146,18 +166,8 @@ function getAllPostListData() {
         $languageColumnNullFields .= ", 'null' ";
     }
     $languageColumnNullFields .= ", 'null' ";
-    $supportedPostTypes = getSupportedPostTypes();
-    $addPostTypes = "";
-    if ( count($supportedPostTypes) > 0 ) {
-        $addPostTypes .= " ( ";
-        foreach ($supportedPostTypes as $key => $supportedPostType) {
-            $addPostTypes .= " $postTable.post_type = '$supportedPostType' ";
-            if ( $key !== count($supportedPostTypes) - 1 ) {
-                $addPostTypes .= " OR ";
-            }
-        }
-        $addPostTypes .= " ) ";
-    }
+
+    $addPostTypes = string_addPostTypes();
 
     $query_getAllPostListData = "SELECT $table.post_id, $postTable.post_title AS post_title, $postTable.guid AS post_guid, post_type AS post_type, count($defaultLanguage) AS $defaultLanguage $addSelectLanguage FROM $table, $postTable WHERE ($defaultLanguage IS NOT NULL $addWhereLanguage) AND $table.post_id = $postTable.ID AND $table.track_language = '$defaultLanguage'AND $table.post_text_id IS NOT NULL  GROUP BY $table.post_id UNION SELECT $postTable.ID as post_id, $postTable.post_title AS post_title, $postTable.guid AS post_guid, post_type AS post_type $languageColumnNullFields FROM $postTable WHERE $addPostTypes AND post_title != 'Auto Draft' ORDER BY post_type ASC, post_id DESC";
     // echo $query_getAllPostListData.'<hr>';
