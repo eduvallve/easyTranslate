@@ -14,7 +14,8 @@ function createProgressBar($progressValue, $totalValue) {
         return 'Not scanned yet!';
     } else {
         $percentage = intval($progressValue * 100 / $totalValue);
-        return "<progress value='$progressValue' max='$totalValue'> $percentage% </progress> <span>$percentage%</span>";
+        $isFinished = intval($progressValue) === intval($totalValue) ? 'class="finished"' : '' ;
+        return "<progress value='$progressValue' max='$totalValue' $isFinished> $percentage% </progress> <span>$percentage%</span>";
     }
 }
 
@@ -22,7 +23,6 @@ function showSingleProgressBar($post) {
     $defaultLanguage = convertLanguageCodesForDB(getDefaultLanguage());
     $supportedLanguages = getTranslationLanguages();
     if ( isNullValue($post->$defaultLanguage) ) {
-        $isFinished = '';
         $total = $post->$defaultLanguage;
         $partial = 'null';
     } else {
@@ -32,9 +32,8 @@ function showSingleProgressBar($post) {
             $language = convertLanguageCodesForDB($language);
             $partial = $partial + intval($post->$language);
         }
-        $isFinished = $partial === $total ? 'finished' : '' ;
     }
-    echo "<div class='md-translate__item-progress-box $isFinished'>".createProgressBar($partial, $total)."</div>";
+    echo "<div class='md-translate__item-progress-box'>".createProgressBar($partial, $total)."</div>";
 }
 
 ?>

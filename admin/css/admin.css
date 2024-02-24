@@ -181,13 +181,6 @@ td.md-post-type__area label:first-child {
 #md-translate .md-translate__language-global:last-child {
   margin-bottom: 0;
 }
-#md-translate .md-translate__language-global.finished {
-  --md-progress-color-light: var(--md-msg-color-success-bg);
-  --md-progress-color-dark: var(--md-msg-color-success-border);
-}
-#md-translate .md-translate__language-global.finished progress::-webkit-progress-value {
-  border-width: medium;
-}
 #md-translate .md-translate__language-global p {
   width: fit-content;
   margin: 0;
@@ -219,13 +212,6 @@ td.md-post-type__area label:first-child {
 }
 #md-translate .md-translate__item-progress-box span {
   min-width: 3em;
-}
-#md-translate .md-translate__item-progress-box.finished {
-  --md-progress-color-light: var(--md-msg-color-success-bg);
-  --md-progress-color-dark: var(--md-msg-color-success-border);
-}
-#md-translate .md-translate__item-progress-box.finished progress::-webkit-progress-value {
-  border-width: medium;
 }
 #md-translate .md-translate__item-actions {
   vertical-align: middle;
@@ -475,6 +461,13 @@ progress::-webkit-progress-bar {
   border: 1px solid var(--md-progress-color-dark);
   border-radius: 10px;
   overflow: hidden;
+}
+progress.finished {
+  --md-progress-color-light: var(--md-msg-color-success-bg);
+  --md-progress-color-dark: var(--md-msg-color-success-border);
+}
+progress.finished progress::-webkit-progress-value {
+  border-width: medium;
 }
 
 /*# sourceMappingURL=admin.css.map */

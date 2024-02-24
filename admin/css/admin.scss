@@ -25,17 +25,6 @@
     --md-body-font-size-large: 14px;
 }
 
-@mixin isFinishedBar {
-    &.finished {
-        --md-progress-color-light: var(--md-msg-color-success-bg);
-        --md-progress-color-dark: var(--md-msg-color-success-border);
-
-        progress::-webkit-progress-value {
-            border-width: medium;
-        }
-    }
-}
-
 $language: 'md-language';
 $post-type: 'md-post-type';
 
@@ -234,8 +223,6 @@ td.#{$post-type}__area {
                 margin-bottom: 0;
             }
 
-            @include isFinishedBar();
-
             p {
                 width: fit-content;
                 margin: 0;
@@ -273,8 +260,6 @@ td.#{$post-type}__area {
                     span {
                         min-width: 3em;
                     }
-
-                    @include isFinishedBar();
                 }
             }
 
@@ -559,5 +544,14 @@ progress {
         border: 1px solid var(--md-progress-color-dark);
         border-radius: 10px;
         overflow: hidden;
+    }
+
+    &.finished {
+        --md-progress-color-light: var(--md-msg-color-success-bg);
+        --md-progress-color-dark: var(--md-msg-color-success-border);
+
+        progress::-webkit-progress-value {
+            border-width: medium;
+        }
     }
 }
