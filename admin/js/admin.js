@@ -41,14 +41,14 @@ function isRadioDefaultLanguage(target) {
 }
 
 /** Basic class */
-class BasicComponent {
+class BasicMdComponent {
     constructor(el) {
         this.el = el;
     }
 }
 
 /** Class for General Admin */
-class GeneralAdmin extends BasicComponent {
+class GeneralAdmin extends BasicMdComponent {
     constructor(el) {
         super (el);
         this.init();
@@ -134,7 +134,7 @@ class GeneralAdmin extends BasicComponent {
 }
 
 /** Class for Success Messages  */
-class SuccessMsg extends BasicComponent {
+class SuccessMsg extends BasicMdComponent {
     constructor(el) {
         super (el);
         this.init();

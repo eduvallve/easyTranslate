@@ -13,14 +13,14 @@ const cfgMdUi = {
 }
 
 /** Basic class */
-class BasicComponent {
+class BasicMdComponent {
     constructor(el) {
         this.el = el;
     }
 }
 
 /** Class for Language Switchers  */
-class LanguageSwitcher extends BasicComponent {
+class LanguageSwitcher extends BasicMdComponent {
     constructor(el) {
         super (el);
         this.init();
