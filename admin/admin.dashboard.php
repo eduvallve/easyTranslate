@@ -26,7 +26,7 @@ function mydictionary_admin_page(){
     <div class="tab-content">
     <?php switch($tab) :
       case 'settings':
-        echo 'Settings'; //Put your HTML here
+        echo 'Settings. Add required shortcode to menu to be able to change languages --> [my-dictionary-menu-language-switcher]'; //Put your HTML here
         break;
       case 'translate':
         require_once 'tabs/translate/translate.php';
