@@ -2,7 +2,7 @@
  * Admin JS code
 */
 
-const cfg = {
+const cfgMdAdmin = {
     selectors: {
         general: {
             generalContainer: '#md-general',
@@ -61,30 +61,30 @@ class GeneralAdmin extends BasicComponent {
     }
 
     setRefs() {
-        this.newLanguageBtn = this.el.querySelector(cfg.selectors.general.newLanguageBtn);
-        this.newLanguageSelect = this.el.querySelector(cfg.selectors.general.addLanguageSelect);
+        this.newLanguageBtn = this.el.querySelector(cfgMdAdmin.selectors.general.newLanguageBtn);
+        this.newLanguageSelect = this.el.querySelector(cfgMdAdmin.selectors.general.addLanguageSelect);
         this.pluginUrl = this.el.dataset.pluginUrl;
-        this.languagesTableBody = this.el.querySelector(cfg.selectors.general.languagesTableBody);
-        this.initialDefaultLanguage = this.el.querySelector(cfg.selectors.general.initialDefault).value;
+        this.languagesTableBody = this.el.querySelector(cfgMdAdmin.selectors.general.languagesTableBody);
+        this.initialDefaultLanguage = this.el.querySelector(cfgMdAdmin.selectors.general.initialDefault).value;
     }
 
     addEventListeners() {
         this.newLanguageBtn.addEventListener('click', this.addLanguage.bind(this));
         this.el.addEventListener('click', e => {
             const target = e.target;
-            if (target.classList.contains(cfg.classes.general.remove)) {
+            if (target.classList.contains(cfgMdAdmin.classes.general.remove)) {
                 this.removeLanguage(target);
             } else if ( isRadioDefaultLanguage(target) ) {
-                const items = this.el.querySelectorAll(cfg.selectors.general.item);
+                const items = this.el.querySelectorAll(cfgMdAdmin.selectors.general.item);
                 items.forEach(item => {
-                    item.classList.remove(cfg.classes.general.itemDefault);
+                    item.classList.remove(cfgMdAdmin.classes.general.itemDefault);
                 });
-                target.closest(cfg.selectors.general.item).classList.add(cfg.classes.general.itemDefault);
+                target.closest(cfgMdAdmin.selectors.general.item).classList.add(cfgMdAdmin.classes.general.itemDefault);
             } else if (
-                target.classList.contains(cfg.classes.general.name) ||
-                target.classList.contains(cfg.classes.general.code)
+                target.classList.contains(cfgMdAdmin.classes.general.name) ||
+                target.classList.contains(cfgMdAdmin.classes.general.code)
                 ) {
-                target.closest(cfg.selectors.general.item).querySelector('input').click();
+                target.closest(cfgMdAdmin.selectors.general.item).querySelector('input').click();
             }
         });
     }
@@ -101,24 +101,24 @@ class GeneralAdmin extends BasicComponent {
     }
 
     removeLanguage(target) {
-        target.closest(cfg.selectors.general.item).remove();
+        target.closest(cfgMdAdmin.selectors.general.item).remove();
         this.showLanguageOption(target.dataset.code);
     }
 
     hideLanguageOption(language) {
-        this.newLanguageSelect.querySelector(`option[title="${language}"]`).classList.add(cfg.classes.hidden);
+        this.newLanguageSelect.querySelector(`option[title="${language}"]`).classList.add(cfgMdAdmin.classes.hidden);
     }
 
     showLanguageOption(language) {
-        this.newLanguageSelect.querySelector(`option[title="${language}"]`).classList.remove(cfg.classes.hidden);
+        this.newLanguageSelect.querySelector(`option[title="${language}"]`).classList.remove(cfgMdAdmin.classes.hidden);
     }
 
     keepDefaultLanguageSelected() {
-        this.el.querySelector(`${cfg.selectors.general.item}.${cfg.classes.general.itemDefault} input`).setAttribute('checked',true);
+        this.el.querySelector(`${cfgMdAdmin.selectors.general.item}.${cfgMdAdmin.classes.general.itemDefault} input`).setAttribute('checked',true);
     }
 
     hideActiveLanguagesFromSelect() {
-        this.el.querySelectorAll(cfg.selectors.general.code).forEach(language => {
+        this.el.querySelectorAll(cfgMdAdmin.selectors.general.code).forEach(language => {
             this.hideLanguageOption(language.innerText);
         });
     }
@@ -145,7 +145,7 @@ class SuccessMsg extends BasicComponent {
     }
 
     addHideClass() {
-        this.el.classList.add(cfg.classes.form.hide);
+        this.el.classList.add(cfgMdAdmin.classes.form.hide);
         setTimeout(() => {
             this.el.remove();
         },500);
@@ -157,12 +157,12 @@ class SuccessMsg extends BasicComponent {
  */
 
 window.onload = function() {
-    const generalTab = document.querySelector(cfg.selectors.general.generalContainer);
+    const generalTab = document.querySelector(cfgMdAdmin.selectors.general.generalContainer);
     if (generalTab) {
         new GeneralAdmin(generalTab);
     }
 
-    document.querySelectorAll(cfg.selectors.form.msg.success).forEach(message => {
+    document.querySelectorAll(cfgMdAdmin.selectors.form.msg.success).forEach(message => {
         new SuccessMsg(message);
     });
 }

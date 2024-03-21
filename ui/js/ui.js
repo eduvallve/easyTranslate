@@ -2,7 +2,7 @@
  * UI JS code
 */
 
-const cfg = {
+const cfgMdUi = {
     selectors: {
         menu: {
             languageSwitcher: '.md-menu_language-switcher'
@@ -43,7 +43,7 @@ class LanguageSwitcher extends BasicComponent {
  */
 
 window.onload = function() {
-    document.querySelectorAll(cfg.selectors.menu.languageSwitcher).forEach(languageSwitcher => {
+    document.querySelectorAll(cfgMdUi.selectors.menu.languageSwitcher).forEach(languageSwitcher => {
         new LanguageSwitcher(languageSwitcher);
     });
 }
