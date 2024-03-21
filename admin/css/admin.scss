@@ -174,10 +174,7 @@ td.#{$post-type}__area {
     &__label {
         vertical-align: baseline;
         padding: 15px 30px 15px 0;
-
-        @media screen and (max-width: 767px) {
-            display: inline-block;
-        }
+        display: inline-block;
     }
 }
 

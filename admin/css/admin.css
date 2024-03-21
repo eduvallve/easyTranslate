@@ -142,11 +142,7 @@ td.md-post-type__area label:first-child {
 .md-post-type__label {
   vertical-align: baseline;
   padding: 15px 30px 15px 0;
-}
-@media screen and (max-width: 767px) {
-  .md-post-type__label {
-    display: inline-block;
-  }
+  display: inline-block;
 }
 
 #md-translate .md-msg__info {
