@@ -1,7 +1,7 @@
 <?php
 
 function showFunctionFired($name) {
-    // echo "$name<br> ";
+    // echo "<b style='color:blue'>$name</b><br> ";
 }
 
 ?>

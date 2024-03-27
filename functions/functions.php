@@ -8,12 +8,14 @@ require_once 'functions.global.php';
 require_once 'functions.database.php';
 require_once 'functions.page-inspect.php';
 
-function my_dictionary_plugin() {
-    createDB_pluginTables();
-    // fillDictionaryTable();
-}
+if (is_admin()) {
+    function my_dictionary_plugin() {
+        createDB_pluginTables();
+        // fillDictionaryTable();
+    }
 
-add_action('wp_enqueue_scripts', 'my_dictionary_plugin');
+    add_action('wp_enqueue_scripts', 'my_dictionary_plugin');
+}
 
 
 if (!is_admin()) {

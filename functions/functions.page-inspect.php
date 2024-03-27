@@ -48,7 +48,32 @@ function removeDuplicatedRows($duplicateRows) {
     }
 
     $query_removeDuplicatedRows = "DELETE FROM $table WHERE $condition";
+    echo $query_removeDuplicatedRows;
     $removeDuplicatedRows = $GLOBALS['wpdb']->query($GLOBALS['wpdb']-> prepare($query_removeDuplicatedRows));
+}
+
+function findDuplicateRows($post_id) {
+    $defaultLanguage = convertLanguageCodesForDB(getDefaultLanguage());
+    $savedPostTexts = getSavedPostTexts($post_id);
+
+    // Remove all duplicated cells from the Array
+    $previousText = "";
+    $previousTextId = "";
+    $duplicateRows = [];
+    foreach ($savedPostTexts as $key => $cell ) {
+        if ( $previousText === $cell->$defaultLanguage ) {
+            unset($savedPostTexts[$key]);
+            array_push($duplicateRows, $cell->id);
+        } else {
+            $previousText = $cell->$defaultLanguage;
+            $previousTextId = $cell->post_text_id;
+        }
+    }
+
+    // Remove all duplicated rows in the DB table
+    if (count($duplicateRows) > 0) {
+        removeDuplicatedRows($duplicateRows);
+    }
 }
 
 function querySavedPostTexts($post_id, $isPostTranslatePage = false) {
@@ -66,21 +91,6 @@ function querySavedPostTexts($post_id, $isPostTranslatePage = false) {
     // echo '<br>'.$query_getSavedPostTexts.' <b><u>OK SO FAR</u></b>';
     $savedPostTexts = $GLOBALS['wpdb']->get_results($query_getSavedPostTexts);
 
-    /** Remove all duplicated cells from the Array */
-    $previousText = "";
-    $duplicateRows = [];
-    foreach ($savedPostTexts as $key => $cell ) {
-        if ( $previousText === $cell->$defaultLanguage ) {
-            unset($savedPostTexts[$key]);
-            array_push($duplicateRows, $cell->id);
-        } else {
-            $previousText = $cell->$defaultLanguage;
-        }
-    }
-    /** Remove all duplicated rows in the DB table */
-    if (count($duplicateRows) > 0) {
-        removeDuplicatedRows($duplicateRows);
-    }
 
     usort($savedPostTexts, function($a, $b) {
         return $a->post_text_id - $b->post_text_id;
@@ -106,12 +116,18 @@ function savePostTexts($post_id, $post_diffTexts) {
     $query_savePostTexts = "INSERT INTO $table (post_id, track_language, post_text_id, $defaultLanguage) VALUES ";
     $acum = 0;
     foreach ($post_diffTexts as $index => $post_text) {
-        $post_text = str_replace('"', '\"', $post_text);
+        $post_text = trim(str_replace('"', '\"', $post_text));
         $query_savePostTexts .= "($post_id,\"$defaultLanguage\",$index,\"$post_text\")";
         $acum !== count($post_diffTexts) - 1 ? $query_savePostTexts .= ', ' : '' ;
         $acum = $acum + 1;
     }
     $savePostTexts = $GLOBALS['wpdb']->query($GLOBALS['wpdb']-> prepare($query_savePostTexts));
+}
+
+function removeNullRows() {
+    $table = $GLOBALS['cfg']['table'];
+    $query_removeNullRows = "DELETE FROM $table WHERE post_text_id IS NULL";
+    $removeNullRows = $GLOBALS['wpdb']->query($GLOBALS['wpdb']-> prepare($query_removeNullRows));
 }
 
 function updatePostTextIDs($post_id) {
@@ -147,26 +163,9 @@ function updatePostTextIDs($post_id) {
      */
     foreach ( $innerTexts as $i => $innerText ) {
         foreach ($savedTexts as $j => $savedText ) {
-            if ( $innerText === $savedText ) {
+            if ( trim($innerText) === trim($savedText) ) {
                 $query_updateIndexValues = " UPDATE $table SET post_text_id = $i WHERE id = $savedTextsIds[$j]; ";
                 $updateIndexValues = $GLOBALS['wpdb']->query($GLOBALS['wpdb']-> prepare($query_updateIndexValues));
-            }
-        }
-    }
-}
-
-function removeObsoleteTranslations($post_diffTexts_reverse, $post_id, $isPostTranslatePage) {
-    showFunctionFired('<-- removeObsoleteTranslations()');
-    $table = $GLOBALS['cfg']['table'];
-    $defaultLanguage = convertLanguageCodesForDB(getDefaultLanguage());
-    $post_savedTexts = getSavedPostTexts($post_id, $isPostTranslatePage);
-
-    $keys = array_keys($post_diffTexts_reverse);
-    foreach ($post_savedTexts as $text) {
-        foreach ($keys as $key) {
-            if (intVal($text->post_text_id) === intVal($key)) {
-                $query_removeObsoleteTranslations = "DELETE FROM $table WHERE id = {$text->id}";
-                $removeObsoleteTranslations = $GLOBALS['wpdb']->query($GLOBALS['wpdb']-> prepare($query_removeObsoleteTranslations));
             }
         }
     }
@@ -179,21 +178,22 @@ function fillDictionaryTableByPost($post_id, $isPostTranslatePage = false) {
      * - All saved texts in dictionary regarding that same post
      * Compare them and extract new still-not-saved texts in dictionary DB
      */
+    $defaultLanguage = convertLanguageCodesForDB(getDefaultLanguage());
     $post_innerText = cleanHtmlTags(getDataFromPost($post_id));
 
     $post_savedTexts = getSavedPostTexts($post_id, $isPostTranslatePage);
-
-    $defaultLanguage = convertLanguageCodesForDB(getDefaultLanguage());
-    $post_diffTexts = array_diff($post_innerText, array_column($post_savedTexts, $defaultLanguage));
+    $post_savedTextLang = array_column($post_savedTexts, $defaultLanguage);
+    $post_diffTexts = array_diff($post_innerText, $post_savedTextLang);
 
     if (count($post_diffTexts) > 0) {
+        foreach ($post_savedTextLang as $savedSentence) {
+            foreach ($post_diffTexts as $d => $diffSentence) {
+                if (trim($savedSentence) === trim($diffSentence)) {
+                    unset($post_diffTexts[$d]);
+                }
+            }
+        }
         savePostTexts($post_id, $post_diffTexts);
-    }
-
-    $post_diffTexts_reverse = array_diff(array_column($post_savedTexts, $defaultLanguage), $post_innerText);
-
-    if (count($post_diffTexts_reverse) > 0) {
-        removeObsoleteTranslations($post_diffTexts_reverse, $post_id, $isPostTranslatePage);
     }
 
     return count($post_diffTexts) > 0;

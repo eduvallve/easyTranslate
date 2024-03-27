@@ -22,6 +22,10 @@
   --md-body-font-size-large: 14px;
 }
 
+svg {
+  max-width: 30px;
+}
+
 .form-table {
   margin-bottom: 50px;
 }

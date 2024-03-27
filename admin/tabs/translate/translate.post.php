@@ -8,11 +8,16 @@ if ( isset($_POST) && count($_POST) > 0 ) {
     include "translate.post.update.php";
 }
 
-if (fillDictionaryTableByPost($_GET['translate_id'], true)) {
-    querySavedPostTexts($_GET['translate_id'], true);
-    updatePostTextIDs($_GET['translate_id']);
-    querySavedPostTexts($_GET['translate_id'], true);
-    fillDictionaryTableByPost($_GET['translate_id'], true);
+if ( isset($_GET['translate_id']) ) {
+    // Sequence of steps to automatically update the DB and show current valid texts into the post-translate page.
+    $id = $_GET['translate_id'];
+    fillDictionaryTableByPost($id, true);
+    findDuplicateRows($id);
+    querySavedPostTexts($id, true);
+    updatePostTextIDs($id);
+    removeNullRows();
+    querySavedPostTexts($id, true);
+    fillDictionaryTableByPost($id, true);
 }
 
 function getSinglePostData($post_id) {
@@ -68,6 +73,9 @@ function showTranslationLine($savedPostText) {
 
 function showTranslationLines() {
     $savedPostTexts = getSavedPostTexts($_GET['translate_id'], true);
+
+    // print_r($savedPostTexts);
+    
     foreach ( $savedPostTexts as $savedPostText ) {
         if ( $savedPostText->post_text_id !== null && $savedPostText->post_text_id !== '' ) {
             showTranslationLine($savedPostText);

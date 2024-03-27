@@ -20,11 +20,12 @@ function processLanguageName($languageName) {
 function getCurrentLanguage() {
     if( isset($_GET['lang']) && $_GET['lang'] !== '' ) {
         return $_GET['lang'];
-    }
-    $cookies = explode('; ', $_SERVER['HTTP_COOKIE']);
-    foreach ($cookies as $cookie) {
-        if (str_contains($cookie, 'md_lang_cookie')) {
-            return explode('=', $cookie)[1];
+    } else if ( isset($_SERVER['HTTP_COOKIE']) ) {
+        $cookies = explode('; ', $_SERVER['HTTP_COOKIE']);
+        foreach ($cookies as $cookie) {
+            if (str_contains($cookie, 'md_lang_cookie')) {
+                return explode('=', $cookie)[1];
+            }
         }
     }
     return getDefaultLanguage();
