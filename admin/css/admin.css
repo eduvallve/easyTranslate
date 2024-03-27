@@ -416,6 +416,10 @@ td.md-post-type__area label:first-child {
   }
 }
 
+#md-settings th, #md-settings th {
+  text-align: start;
+}
+
 .md-msg {
   margin: 1em 0;
   padding: 1em;
