@@ -1,5 +1,39 @@
 <?php
 
+function findShortcodes($content) {
+    // Extract only shordcodesin an Array
+    $post_innerShort = array_map(function($text) {
+        $innerShort = explode("]", $text);
+        $returnable = count($innerShort) === 2 && $innerShort[0] !== '' && !strpos($innerShort[0],'=') ? $innerShort[0] : '' ;
+        return $returnable;
+    }, explode("[", $content));
+
+    $post_innerShort = array_values(
+        array_unique(
+            array_filter(
+                $post_innerShort, function($value) {
+                    return $value !== 'noun' && $value !== 'edu-years-experience' && $value !== '';
+                    // && $value !== 'edu-years-experience' should be replaced with a user custom set of non-translatable shortcodes
+                }
+            )
+        )
+    );
+    // Return found shortcodes
+    print_r($post_innerShort);
+    return $post_innerShort;
+}
+
+function explodeShortcode($content) {
+    $shortcodes = findShortcodes($content);
+    $newContent = '';
+    foreach ($shortcodes as $shortcode) {
+        // Replace each shortcode with its rendered content
+        $newContent .= do_shortcode("[$shortcode]");
+    }
+    // Return expanded shortcodes within the page content
+    return $content.$newContent;
+}
+
 function getDataFromPost($post_id) {
     if ( isset($GLOBALS['cfg']['datafromPost']) ) {
         return $GLOBALS['cfg']['datafromPost'];
@@ -9,6 +43,8 @@ function getDataFromPost($post_id) {
         $getDataFromPost = "SELECT post_content FROM $postTable WHERE ID = $post_id";
         $dataFromPost = $GLOBALS['wpdb']->get_results($getDataFromPost);
         $post_content = implode(array_column($dataFromPost, 'post_content'));
+
+        $post_content = explodeShortcode($post_content);
 
         $GLOBALS['cfg']['datafromPost'] = $post_content;
         return $post_content;
@@ -22,9 +58,15 @@ function cleanHtmlTags($post_content) {
         return count($innerText) === 2 && $innerText[1] !== '' ? $innerText[1] : '' ;
     }, explode("<", $post_content));
 
-    // Remove all blank/empty cells from the Array
+    // Remove all blank/empty cells from the Array + exceptions
     foreach ($post_innerText as $key => $cell) {
-        if (trim($cell) === '') {
+        if (
+            trim($cell) === '' ||
+            trim($cell) === '-' ||
+            trim($cell) === '_' ||
+            strpos(trim($cell), '/*! elementor') !== false ||
+            (strpos(trim($cell), '[') === 0 && strpos(trim($cell), ']') === intval(strlen(trim($cell))) - 1)
+            ) {
             unset($post_innerText[$key]);
         }
     }

@@ -297,6 +297,9 @@ td.md-post-type__area label:first-child {
 }
 #md-translate .md-translate__page--form .submit {
   text-align: end;
+  position: sticky;
+  top: calc(var(--col-gap) * 2);
+  z-index: 1;
 }
 #md-translate .md-translate__page--type {
   font-size: var(--md-body-font-size-small);

@@ -371,6 +371,9 @@ td.#{$post-type}__area {
 
         &--form .submit {
             text-align: end;
+            position: sticky;
+            top: calc(var(--col-gap)* 2);
+            z-index: 1;
         }
 
         &--type {

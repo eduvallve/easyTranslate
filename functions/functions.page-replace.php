@@ -35,7 +35,7 @@
         usort($find_new, function($a, $b) {
             return strlen($b) - strlen($a);
         });
-        // print_r($find_new); echo '<hr>';
+
         $replace_new = [];
         foreach ($find_new as $fn) {
             foreach ($find as $indexFind => $f) {
@@ -44,7 +44,7 @@
                 }
             }
         }
-        // print_r($replace_new); echo '<hr>';
+
         return [$find_new, $replace_new];
     }
 

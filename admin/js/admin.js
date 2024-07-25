@@ -92,7 +92,6 @@ class GeneralAdmin extends BasicMdComponent {
     addLanguage() {
         if (this.newLanguageSelect.value.trim() !== '') {
             const filename = `${this.pluginUrl}general.template.language.row.php?md_code=${this.newLanguageSelect.value}`;
-            console.log(filename);
             this.fileGetContents(filename);
             this.hideLanguageOption(this.newLanguageSelect.value);
             this.newLanguageSelect.selectedIndex = 0;
