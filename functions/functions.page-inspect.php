@@ -19,7 +19,6 @@ function findShortcodes($content) {
         )
     );
     // Return found shortcodes
-    print_r($post_innerShort);
     return $post_innerShort;
 }
 
